@@ -1,0 +1,6 @@
+// Editor settings
+{"editor.tabSize":2,/* inline */"editor.rulers":[80,120],
+      "files.exclude":{"**/.git":true,"**/node_modules":true},
+  // trailing commas are allowed here
+  "search.exclude":{"dist":true,},
+}

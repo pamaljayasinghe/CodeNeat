@@ -1,0 +1,10 @@
+syntax = "proto3";
+package demo.v1;
+import "google/protobuf/timestamp.proto";
+option go_package = "example.com/demo/v1;demov1";
+message User {string id=1;string name=2;repeated string roles=3;google.protobuf.Timestamp created_at=4;
+enum Status {STATUS_UNSPECIFIED=0;STATUS_ACTIVE=1;STATUS_DISABLED=2;}
+Status status=5;}
+service UserService {rpc GetUser(GetUserRequest) returns (User);rpc ListUsers(ListUsersRequest) returns (stream User);}
+message GetUserRequest {string id=1;}
+message ListUsersRequest {int32 page_size=1;string page_token=2;}

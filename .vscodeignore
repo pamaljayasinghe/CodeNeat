@@ -1,0 +1,20 @@
+# Everything that is not needed at runtime stays out of the VSIX.
+.github/**
+.vscode/**
+.vscode-test/**
+src/**
+webview/**
+tests/**
+scripts/**
+out/**
+**/*.map
+**/*.ts
+!node_modules/**/*.d.ts
+tsconfig.json
+eslint.config.mjs
+vitest.config.ts
+.gitignore
+.vscodeignore
+*.vsix
+CONTRIBUTING.md
+docs/architecture.md

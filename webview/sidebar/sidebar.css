@@ -1,0 +1,105 @@
+body {
+  padding: 12px 14px 20px;
+  color: var(--vscode-foreground);
+  font-family: var(--vscode-font-family);
+  font-size: var(--vscode-font-size);
+  line-height: 1.45;
+}
+header h1 {
+  margin: 0;
+  font-size: 1.35em;
+  font-weight: 600;
+  letter-spacing: -0.01em;
+}
+.tagline {
+  margin: 2px 0 14px;
+  color: var(--vscode-descriptionForeground);
+  font-size: 0.92em;
+}
+h2 {
+  margin: 18px 0 8px;
+  font-size: 0.8em;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--vscode-descriptionForeground);
+}
+button {
+  display: block;
+  width: 100%;
+  margin: 0 0 6px;
+  padding: 6px 10px;
+  border: 1px solid var(--vscode-button-border, transparent);
+  border-radius: 4px;
+  background: var(--vscode-button-secondaryBackground);
+  color: var(--vscode-button-secondaryForeground);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+button:hover {
+  background: var(--vscode-button-secondaryHoverBackground);
+}
+button:focus-visible {
+  outline: 1px solid var(--vscode-focusBorder);
+  outline-offset: 2px;
+}
+button.primary {
+  padding: 8px 10px;
+  background: var(--vscode-button-background);
+  color: var(--vscode-button-foreground);
+  font-weight: 600;
+  text-align: center;
+}
+button.primary:hover {
+  background: var(--vscode-button-hoverBackground);
+}
+.card {
+  margin-top: 14px;
+  padding: 10px 12px 12px;
+  border: 1px solid var(--vscode-widget-border, var(--vscode-contrastBorder, rgba(128, 128, 128, 0.35)));
+  border-radius: 6px;
+  background: var(--vscode-editorWidget-background);
+}
+.card h2 {
+  margin-top: 0;
+}
+dl {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  margin: 0;
+}
+dt {
+  color: var(--vscode-descriptionForeground);
+}
+dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+}
+.badge {
+  display: inline-block;
+  margin-left: 4px;
+  padding: 0 6px;
+  border-radius: 8px;
+  border: 1px solid currentColor;
+  font-size: 0.82em;
+  white-space: nowrap;
+}
+.badge.ok {
+  color: var(--vscode-testing-iconPassed, #2e7d32);
+}
+.badge.missing {
+  color: var(--vscode-editorWarning-foreground, #b26a00);
+}
+.note {
+  margin: 10px 0 8px;
+  font-size: 0.92em;
+}
+.note.warn {
+  color: var(--vscode-editorWarning-foreground);
+}
+.muted {
+  margin: 0;
+  color: var(--vscode-descriptionForeground);
+}

@@ -1,0 +1,15 @@
+# Project manifest
+title="demo"
+[package]
+name="demo"
+version   =   "0.1.0"
+authors=["Ada <ada@example.com>","Linus <linus@example.com>","Grace <grace@example.com>"]
+
+
+keywords=[ "format","demo" ]
+[dependencies]
+serde={version="1.0",features=["derive"]}
+tokio = { version = "1",   features = ["full"] }
+[[bin]]
+name="cli"
+path="src/main.rs"

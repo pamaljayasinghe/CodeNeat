@@ -1,0 +1,13 @@
+# Deployment configuration
+service:   web
+replicas:    3
+env: {NODE_ENV: production,   LOG_LEVEL: info}
+ports: [ 80,443 ]
+steps:
+    - name:   install
+      run: npm ci
+    - name: build
+      run:   >
+        npm run build
+        --if-present
+description: "A long description that explains what this service does and why it exists in the first place"

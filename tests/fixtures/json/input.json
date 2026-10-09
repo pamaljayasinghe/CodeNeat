@@ -1,0 +1,4 @@
+{"name":"demo","version":"1.0.0","private":true,
+  "scripts":{"build":"tsc -p .","test":"vitest run"},
+      "keywords":["format","demo"],"nested":{"enabled":true,"ratio":0.5,"items":[1,2,3,{"deep":null}]},
+"emptyObject":{},"emptyArray":[]}

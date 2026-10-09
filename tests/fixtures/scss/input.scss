@@ -1,0 +1,7 @@
+@use "sass:math";
+$gap:8px;$brand:#0a7acc;
+@mixin center($direction:row){display:flex;flex-direction:$direction;align-items:center;justify-content:center}
+.card{padding:$gap math.div($gap,2);
+  &:hover{color:darken($brand,10%)}
+  .title{@include center(column);font-weight:bold}
+  @media (max-width:600px){padding:0}}

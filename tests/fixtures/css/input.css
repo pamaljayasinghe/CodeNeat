@@ -1,0 +1,6 @@
+@import url("theme.css");
+:root{--gap:8px;--brand:#0A7ACC}
+.card,.panel{display:flex;padding:var(--gap) calc(var(--gap)*2);color:RED;background:URL(bg.png)}
+.card:hover>.title{font-weight:bold;transition:color .2s ease-in,background-color .2s ease-in,border-color .2s ease-in,box-shadow .2s ease-in}
+@media (max-width:600px){.card{flex-direction:column}
+.panel{display:none}}
