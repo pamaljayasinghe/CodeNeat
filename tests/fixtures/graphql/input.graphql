@@ -1,0 +1,5 @@
+type Query{user(id:ID!):User users(first:Int=10,after:String):[User!]!}
+type User implements Node{id:ID! name:String! email:String posts(first:Int):[Post!]!}
+query GetUser($id:ID!,$withPosts:Boolean=false){user(id:$id){id name ...Contact posts(first:5)@include(if:$withPosts){title}}}
+fragment Contact on User{email}
+input Filter{tags:[String!],range:Range={min:0,max:10}}

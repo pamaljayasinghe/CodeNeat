@@ -1,0 +1,497 @@
+{
+  "name": "codeneat",
+  "displayName": "CodeNeat",
+  "description": "Format code in 41 languages with one extension. A visual settings dashboard, live before/after preview, formatting profiles and per-language styles, powered by the official formatting engines. 32 languages work with nothing else to install.",
+  "version": "1.0.0",
+  "publisher": "pamaljayasinghe",
+  "license": "Apache-2.0",
+  "icon": "assets/icon.png",
+  "galleryBanner": {
+    "color": "#0F172A",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pamaljayasinghe/CodeNeat.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pamaljayasinghe/CodeNeat/issues"
+  },
+  "homepage": "https://github.com/pamaljayasinghe/CodeNeat#readme",
+  "engines": {
+    "vscode": "^1.90.0"
+  },
+  "categories": [
+    "Formatters"
+  ],
+  "keywords": [
+    "formatter",
+    "format",
+    "prettier",
+    "beautify",
+    "code style",
+    "multi-language",
+    "indentation",
+    "line length"
+  ],
+  "main": "./dist/extension.js",
+  "activationEvents": [
+    "onStartupFinished"
+  ],
+  "capabilities": {
+    "untrustedWorkspaces": {
+      "supported": "limited",
+      "description": "In Restricted Mode CodeNeat only runs its bundled formatters with your own (user) settings. Project formatter configuration, project-local formatter installations, external formatter executables and custom formatters are disabled until the workspace is trusted.",
+      "restrictedConfigurations": [
+        "codeneat.toolPaths",
+        "codeneat.customFormatters",
+        "codeneat.languages",
+        "codeneat.respectProjectConfig"
+      ]
+    },
+    "virtualWorkspaces": {
+      "supported": "limited",
+      "description": "Only the bundled formatters are available in virtual workspaces; external formatter executables need a local file system."
+    }
+  },
+  "contributes": {
+    "commands": [
+      {
+        "command": "codeneat.formatDocument",
+        "title": "Format Document",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.formatSelection",
+        "title": "Format Selection",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.formatWorkspace",
+        "title": "Format Workspace",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.previewFormatting",
+        "title": "Preview Formatting",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.checkFormatting",
+        "title": "Check Formatting",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.openSettings",
+        "title": "Open Settings",
+        "category": "CodeNeat",
+        "icon": "$(settings-gear)"
+      },
+      {
+        "command": "codeneat.selectFormatter",
+        "title": "Select Formatter",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.selectProfile",
+        "title": "Select Profile",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.manageFormatters",
+        "title": "Manage Formatters",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.openDiagnostics",
+        "title": "Open Diagnostics",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.importSettings",
+        "title": "Import Settings",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.exportSettings",
+        "title": "Export Settings",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.setAsDefaultFormatter",
+        "title": "Use CodeNeat as Default Formatter",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.refreshFormatters",
+        "title": "Re-detect Installed Formatters",
+        "category": "CodeNeat",
+        "icon": "$(refresh)"
+      },
+      {
+        "command": "codeneat.installFormatter",
+        "title": "Install a Formatter",
+        "category": "CodeNeat"
+      }
+    ],
+    "menus": {
+      "editor/context": [
+        {
+          "command": "codeneat.formatDocument",
+          "group": "1_modification@90",
+          "when": "editorTextFocus && !editorReadonly"
+        },
+        {
+          "command": "codeneat.formatSelection",
+          "group": "1_modification@91",
+          "when": "editorTextFocus && editorHasSelection && !editorReadonly"
+        }
+      ],
+      "explorer/context": [
+        {
+          "command": "codeneat.formatWorkspace",
+          "group": "7_modification@90",
+          "when": "explorerResourceIsFolder"
+        }
+      ],
+      "view/title": [
+        {
+          "command": "codeneat.openSettings",
+          "when": "view == codeneat.home",
+          "group": "navigation@1"
+        },
+        {
+          "command": "codeneat.refreshFormatters",
+          "when": "view == codeneat.home",
+          "group": "navigation@2"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "codeneat.formatSelection",
+          "when": "editorHasSelection"
+        }
+      ]
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "codeneat",
+          "title": "CodeNeat",
+          "icon": "assets/activity-icon.svg"
+        }
+      ]
+    },
+    "views": {
+      "codeneat": [
+        {
+          "id": "codeneat.home",
+          "name": "CodeNeat",
+          "type": "webview",
+          "contextualTitle": "CodeNeat"
+        }
+      ]
+    },
+    "walkthroughs": [
+      {
+        "id": "codeneat.gettingStarted",
+        "title": "Get started with CodeNeat",
+        "description": "Format any language your way in six short steps.",
+        "steps": [
+          {
+            "id": "openFile",
+            "title": "Open a supported file",
+            "description": "Open any source file. CodeNeat detects its language automatically and picks a formatter for it.\n[Open a File](command:workbench.action.files.openFile)",
+            "media": {
+              "markdown": "docs/walkthrough/open-file.md"
+            }
+          },
+          {
+            "id": "openSettings",
+            "title": "Open CodeNeat settings",
+            "description": "Click the CodeNeat icon in the Activity Bar or run **CodeNeat: Open Settings**.\n[Open CodeNeat Settings](command:codeneat.openSettings)",
+            "media": {
+              "markdown": "docs/walkthrough/open-settings.md"
+            },
+            "completionEvents": [
+              "onCommand:codeneat.openSettings"
+            ]
+          },
+          {
+            "id": "customize",
+            "title": "Customize your style",
+            "description": "Pick a line length, indentation, quotes and more. Controls that your formatter does not support are disabled with an explanation.",
+            "media": {
+              "markdown": "docs/walkthrough/customize.md"
+            }
+          },
+          {
+            "id": "preview",
+            "title": "Preview the result",
+            "description": "The live preview runs the real formatter on sample code or on your current file.\n[Preview Formatting](command:codeneat.previewFormatting)",
+            "media": {
+              "markdown": "docs/walkthrough/preview.md"
+            },
+            "completionEvents": [
+              "onCommand:codeneat.previewFormatting"
+            ]
+          },
+          {
+            "id": "apply",
+            "title": "Apply formatting",
+            "description": "Format the current file with **CodeNeat: Format Document**.\n[Format Document](command:codeneat.formatDocument)",
+            "media": {
+              "markdown": "docs/walkthrough/apply.md"
+            },
+            "completionEvents": [
+              "onCommand:codeneat.formatDocument"
+            ]
+          },
+          {
+            "id": "formatOnSave",
+            "title": "Optionally format on save",
+            "description": "Make CodeNeat your default formatter, then switch on Format on Save in the Auto Formatting page.\n[Use CodeNeat as Default Formatter](command:codeneat.setAsDefaultFormatter)",
+            "media": {
+              "markdown": "docs/walkthrough/format-on-save.md"
+            },
+            "completionEvents": [
+              "onCommand:codeneat.setAsDefaultFormatter"
+            ]
+          }
+        ]
+      }
+    ],
+    "configuration": {
+      "title": "CodeNeat",
+      "properties": {
+        "codeneat.style": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "markdownDescription": "Formatting preferences that apply to every language (for example `{ \"lineLength\": 100, \"indentStyle\": \"spaces\" }`). Edit these visually with **CodeNeat: Open Settings**. See the configuration reference for all option names."
+        },
+        "codeneat.languages": {
+          "type": "object",
+          "default": {},
+          "scope": "resource",
+          "markdownDescription": "Per-language choices, keyed by CodeNeat language id. Each entry may contain `formatter` (formatter id), `profile` (profile id) and `style` (preferences for that language only).",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "formatter": {
+                "type": "string"
+              },
+              "profile": {
+                "type": "string"
+              },
+              "style": {
+                "type": "object"
+              }
+            },
+            "additionalProperties": false
+          }
+        },
+        "codeneat.defaultProfile": {
+          "type": "string",
+          "default": "standard",
+          "scope": "resource",
+          "markdownDescription": "The formatting profile used when a language has no profile of its own. Built-in profiles: `standard`, `compact`, `readable`, `team`."
+        },
+        "codeneat.profiles": {
+          "type": "object",
+          "default": {},
+          "scope": "window",
+          "markdownDescription": "Custom formatting profiles, keyed by profile id. Manage them on the **Formatting Profiles** page of the CodeNeat dashboard.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "style": {
+                "type": "object"
+              },
+              "languages": {
+                "type": "object"
+              }
+            },
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "codeneat.respectProjectConfig": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "markdownDescription": "Let project files such as `.editorconfig`, `.prettierrc`, `.clang-format` or `rustfmt.toml` take priority over CodeNeat preferences. CodeNeat never modifies these files."
+        },
+        "codeneat.toolPaths": {
+          "type": "object",
+          "default": {},
+          "scope": "machine-overridable",
+          "markdownDescription": "Absolute paths to formatter executables, keyed by formatter id (for example `{ \"rustfmt\": \"/opt/rust/bin/rustfmt\" }`). Leave empty to find formatters on your `PATH`.",
+          "additionalProperties": {
+            "type": "string"
+          }
+        },
+        "codeneat.customFormatters": {
+          "type": "array",
+          "default": [],
+          "scope": "machine-overridable",
+          "markdownDescription": "Additional external formatters. Each one runs only after you approve its exact command. The source is sent on standard input and the formatted result is read from standard output.",
+          "items": {
+            "type": "object",
+            "required": [
+              "id",
+              "name",
+              "languages",
+              "command"
+            ],
+            "additionalProperties": false,
+            "properties": {
+              "id": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9-]{1,40}$",
+                "description": "Unique id (lowercase letters, digits, dashes)."
+              },
+              "name": {
+                "type": "string",
+                "description": "Name shown in CodeNeat."
+              },
+              "languages": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "CodeNeat or VS Code language ids this formatter handles."
+              },
+              "extensions": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "File extensions (with leading dot) this formatter handles."
+              },
+              "command": {
+                "type": "string",
+                "description": "Executable name or absolute path. Never passed through a shell."
+              },
+              "args": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "description": "Arguments. Placeholders: ${file} (file path, for the tool's information only), ${lineLength}, ${indentSize}, ${indentStyle}."
+              }
+            }
+          }
+        },
+        "codeneat.formatOnType": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "markdownDescription": "Allow CodeNeat to answer VS Code's *Format On Type* requests (after typing `}` or `;`). This only has an effect while `editor.formatOnType` is switched on."
+        },
+        "codeneat.timeoutMs": {
+          "type": "number",
+          "default": 10000,
+          "minimum": 500,
+          "maximum": 120000,
+          "scope": "window",
+          "markdownDescription": "Maximum time in milliseconds a single formatting run may take before it is stopped."
+        },
+        "codeneat.maxFileSizeKB": {
+          "type": "number",
+          "default": 2048,
+          "minimum": 16,
+          "maximum": 102400,
+          "scope": "window",
+          "markdownDescription": "Files larger than this size (in kilobytes) are not formatted."
+        },
+        "codeneat.workspace.exclude": {
+          "type": "array",
+          "default": [],
+          "items": {
+            "type": "string"
+          },
+          "scope": "resource",
+          "markdownDescription": "Extra glob patterns (gitignore syntax) to skip during **Format Workspace**, in addition to the built-in exclusions (`node_modules`, build output, lock files, minified and generated files)."
+        },
+        "codeneat.workspace.useGitignore": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "markdownDescription": "Skip files ignored by `.gitignore` during **Format Workspace**."
+        },
+        "codeneat.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "markdownDescription": "Show the active language's formatter in the status bar."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "clean": "node scripts/clean.mjs",
+    "samples": "node scripts/gen-samples.mjs",
+    "build": "npm run samples && node scripts/build.mjs --production",
+    "build:dev": "npm run samples && node scripts/build.mjs",
+    "watch": "npm run samples && node scripts/build.mjs --watch",
+    "typecheck": "tsc -p tsconfig.json --noEmit && tsc -p webview/tsconfig.json --noEmit && tsc -p tests/tsconfig.json --noEmit",
+    "lint": "eslint .",
+    "test": "npm run test:unit && npm run test:integration",
+    "test:unit": "vitest run tests/unit",
+    "test:integration": "vitest run tests/integration",
+    "test:e2e": "npm run build:dev && node scripts/build.mjs --e2e && node tests/e2e/run.mjs",
+    "verify:vsix": "node scripts/verify-vsix.mjs",
+    "package": "npm run build && vsce package --out codeneat.vsix && npm run verify:vsix",
+    "vscode:prepublish": "npm run build",
+    "ci": "npm run typecheck && npm run lint && npm test && npm run package",
+    "docs": "node scripts/gen-docs.mjs",
+    "test:e2e:vsix": "node scripts/build.mjs --e2e && node tests/e2e/run.mjs --vsix"
+  },
+  "dependencies": {
+    "@prettier/plugin-php": "^0.25.0",
+    "@prettier/plugin-xml": "^3.4.2",
+    "@reteps/dockerfmt": "^0.5.4",
+    "@wasm-fmt/clang-format": "^23.1.1",
+    "@wasm-fmt/dart_fmt": "^0.4.0",
+    "@wasm-fmt/gofmt": "^0.7.3",
+    "@wasm-fmt/lua_fmt": "^0.3.3",
+    "@wasm-fmt/ruff_fmt": "^0.15.20",
+    "@wasm-fmt/shfmt": "^0.2.7",
+    "editorconfig": "^2.0.1",
+    "prettier": "^3.6.0",
+    "prettier-plugin-java": "^2.7.0",
+    "prettier-plugin-latex": "^2.0.1",
+    "prettier-plugin-toml": "^2.0.6",
+    "sql-formatter": "^15.6.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.0",
+    "@types/diff": "^7.0.0",
+    "@types/node": "^20.11.0",
+    "@types/react": "^18.3.0",
+    "@types/react-dom": "^18.3.0",
+    "@types/vscode": "1.90.0",
+    "@vscode/test-electron": "^2.5.2",
+    "@vscode/vsce": "^3.9.0",
+    "diff": "^8.0.0",
+    "esbuild": "^0.25.0",
+    "eslint": "^9.39.0",
+    "highlight.js": "^11.11.0",
+    "ignore": "^7.0.0",
+    "jsdom": "^24.1.3",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "typescript": "^5.9.0",
+    "typescript-eslint": "^8.40.0",
+    "vitest": "^3.2.0",
+    "yauzl": "^3.2.0"
+  }
+}

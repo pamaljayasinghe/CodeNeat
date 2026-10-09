@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<catalog xmlns:x="http://example.com/x" version='2'>
+<book id="b1" lang="en"   available="true"><title>Clean Code</title><author>Robert Martin</author>
+<price currency="USD">33.99</price></book>
+    <book id="b2" lang="en"><title>Refactoring</title><author>Martin Fowler</author><price currency="USD">47.50</price><x:note/></book>
+<!-- end of list -->
+</catalog>

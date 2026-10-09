@@ -1,0 +1,7 @@
+<section class="users" *ngIf="users$ | async as users; else loading">
+<h2>{{title|uppercase}}</h2>
+<ul><li *ngFor="let user of users; trackBy: trackById; let i=index" [class.active]="user.id===selectedId" (click)="select(user)">{{i+1}}. {{user.name}} <small>{{user.email||'no email'}}</small></li></ul>
+@if (users.length>10) {<p>Showing {{users.length}} users</p>} @else {<p>Only a few users</p>}
+<button type="button" [disabled]="!selectedId" (click)="remove(selectedId)">Remove</button>
+</section>
+<ng-template #loading><p>Loading…</p></ng-template>
