@@ -23,6 +23,8 @@ interface Notice {
 }
 
 const FALLBACK_LANGUAGE = 'javascript';
+/** Address of the CodeNeat logo, provided by the extension host on the root element. */
+const logoUrl = document.getElementById('root')?.getAttribute('data-logo') || undefined;
 let noticeCounter = 0;
 
 export function App() {
@@ -225,9 +227,13 @@ export function App() {
     <div className="app">
       <header className="topbar">
         <div className="brand">
-          <span className="brand-mark" aria-hidden="true">
-            {'{ }'}
-          </span>
+          {logoUrl ? (
+            <img className="brand-logo" src={logoUrl} alt="" width={34} height={34} />
+          ) : (
+            <span className="brand-mark" aria-hidden="true">
+              {'{ }'}
+            </span>
+          )}
           <div>
             <h1>CodeNeat</h1>
             <span className="brand-tagline">One Extension. Every Language. Your Style.</span>

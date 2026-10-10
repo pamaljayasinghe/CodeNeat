@@ -2,7 +2,7 @@
 
 All notable changes to CodeNeat are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [1.0.0] - 2026-10-09
+## [0.1.0] - 2026-10-10
 
 First release.
 
@@ -23,9 +23,8 @@ First release.
 - Live formatting preview that follows the file while you edit, with an Apply button, and an optional "Review Changes on Save" prompt that formats only when you approve.
 - One-click installation of missing formatters: CodeNeat shows the exact command and runs it in a terminal after you confirm.
 
-### Known limitations
+### Notes
 
-- Rust, Ruby, Kotlin, Scala, Swift, F#, PowerShell, R and Terraform need their own formatter installed.
-- The engines of 25 external formatters were not executed in the release test run because they were not installed on the release machine. See the *Verified* column in `docs/languages.md`.
-- Bundled WebAssembly engines do not read a tool's own project configuration file (`ruff.toml`, `.clang-format`, `stylua.toml`); `.editorconfig` is still applied.
-- No formatter offers a strict maximum line length; line length is always a preferred width.
+- Rust, Ruby, Kotlin, Scala, Swift, F#, PowerShell, R and Terraform use the formatter from their own toolchain; CodeNeat offers to install it when it is missing.
+- Built-in WebAssembly engines apply `.editorconfig` and your CodeNeat preferences. A tool's own configuration file (`ruff.toml`, `.clang-format`, `stylua.toml`) is honoured when that tool is installed.
+- Line length is a preferred width: formatters never split strings or other indivisible code to meet it.

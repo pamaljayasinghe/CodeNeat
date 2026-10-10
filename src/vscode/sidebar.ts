@@ -85,6 +85,7 @@ export class SidebarProvider implements vscode.WebviewViewProvider, vscode.Dispo
     const nonce = createNonce();
     const style = view.webview.asWebviewUri(vscode.Uri.joinPath(root, 'sidebar.css'));
     const script = view.webview.asWebviewUri(vscode.Uri.joinPath(root, 'sidebar.js'));
+    const logo = view.webview.asWebviewUri(vscode.Uri.joinPath(root, 'logo.png'));
     const csp = `default-src 'none'; style-src ${view.webview.cspSource}; script-src 'nonce-${nonce}'; img-src ${view.webview.cspSource};`;
     const status = await this.statusHtml();
     if (this.view !== view) {
@@ -101,8 +102,11 @@ export class SidebarProvider implements vscode.WebviewViewProvider, vscode.Dispo
 </head>
 <body>
 <header>
-  <h1>CodeNeat</h1>
-  <p class="tagline">One Extension. Every Language. Your Style.</p>
+  <img class="logo" src="${logo}" alt="" width="36" height="36">
+  <div>
+    <h1>CodeNeat</h1>
+    <p class="tagline">One Extension. Every Language. Your Style.</p>
+  </div>
 </header>
 <button class="primary" data-command="codeneat.openSettings">Open Settings</button>
 ${status}

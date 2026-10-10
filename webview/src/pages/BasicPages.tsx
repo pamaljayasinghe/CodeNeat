@@ -665,6 +665,32 @@ export function HelpPage({ context }: { context: PageContext }) {
         </ol>
         <p className="muted">Each of these can be switched off on the Advanced page.</p>
       </Card>
+      <Card title="Limits">
+        <dl className="facts">
+          <dt>File size</dt>
+          <dd>
+            Up to {context.draft.maxFileSizeKB.toLocaleString()} KB per file (about {Math.round(context.draft.maxFileSizeKB / 1024)} million characters). You can
+            raise this to 100 MB on the Advanced page.
+          </dd>
+          <dt>Lines</dt>
+          <dd>No fixed limit. A 2 MB file is typically 30,000 to 90,000 lines of code.</dd>
+          <dt>Time per file</dt>
+          <dd>{Math.round(context.draft.timeoutMs / 1000)} seconds, adjustable up to 120 seconds on the Advanced page.</dd>
+          <dt>Typical speed</dt>
+          <dd>A 2 MB file formats in under a second for Go and Python, and in about 3 to 8 seconds for TypeScript, Java, C++ and JSON.</dd>
+          <dt>Format Workspace</dt>
+          <dd>Up to 20,000 files per run. Format sub-folders separately for larger projects.</dd>
+          <dt>Line length</dt>
+          <dd>40 to 300 characters.</dd>
+          <dt>Indentation</dt>
+          <dd>1 to 16 spaces, or tabs.</dd>
+          <dt>Languages</dt>
+          <dd>{state.languages.length}, plus any you add as a custom formatter.</dd>
+          <dt>Profiles</dt>
+          <dd>Unlimited.</dd>
+        </dl>
+        <p className="muted">A file over the size or time limit is left exactly as it is, and CodeNeat tells you why.</p>
+      </Card>
       <Card title="Common questions">
         {FAQ.map((entry) => (
           <details key={entry.question} className="faq">

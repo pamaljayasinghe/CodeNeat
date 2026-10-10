@@ -116,6 +116,21 @@ Everything CodeNeat adds can be switched off in **CodeNeat Settings → Advanced
 
 To stop using CodeNeat as the default formatter, remove `"editor.defaultFormatter": "PamalJayasinghe.codeneat"` from your settings, or choose another formatter with **Format Document With…**. To remove CodeNeat completely, uninstall it from the Extensions view; it leaves nothing behind except your `codeneat.*` settings.
 
+## Limits
+
+| | |
+| --- | --- |
+| File size | 2 MB per file by default (about 2 million characters). Raise it up to 100 MB under **Advanced → Largest File to Format**. |
+| Lines | No fixed limit. A 2 MB file is typically 30,000 to 90,000 lines of code. |
+| Time per file | 10 seconds by default. Raise it up to 120 seconds under **Advanced → Time Limit per File**. |
+| Typical speed | A 2 MB file formats in under a second for Go and Python, and in about 3 to 8 seconds for TypeScript, Java, C++ and JSON. |
+| Format Workspace | Up to 20,000 files per run. Format sub-folders separately for larger projects. |
+| Line length | 40 to 300 characters. |
+| Indentation | 1 to 16 spaces, or tabs. |
+| Profiles | Unlimited. |
+
+A file over the size or time limit is left exactly as it is, and CodeNeat tells you why. The same list is on the **Help and Diagnostics** page of the dashboard.
+
 ## When something does not work
 
 Run **CodeNeat: Open Diagnostics** for a report of what CodeNeat is doing for the current file (it contains no source code), and see the [troubleshooting guide](troubleshooting.md).

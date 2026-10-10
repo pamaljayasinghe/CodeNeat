@@ -144,6 +144,10 @@ kbd {
   font-size: 13px;
   letter-spacing: -0.5px;
 }
+.brand-logo {
+  display: block;
+  border-radius: 8px;
+}
 .brand h1 {
   font-size: 1.25em;
   font-weight: 600;
