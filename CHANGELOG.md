@@ -2,6 +2,23 @@
 
 All notable changes to CodeNeat are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.0] - 2026-10-10
+
+### Changed
+
+- The CodeNeat button in the editor title bar now shows the changes highlighted in the file and asks **Keep Changes** or **Undo Changes**. Choose "Format straight away" under **Advanced** to skip the question.
+- Formatter Management is grouped into *Built in*, *Installed*, *Needs to be installed* and *Optional alternatives*, with a summary of how many languages are ready.
+- Switches use a clear green "on" colour in every theme.
+
+### Added
+
+- A "Customize one language" section in the user guide, and a link to the introduction article from the README and the Help page.
+
+### Fixed
+
+- Dropdowns no longer extend outside their box on narrow layouts.
+- TOML and LaTeX files with Windows (CRLF) line endings are formatted correctly; previously their line endings could be doubled.
+
 ## [0.1.0] - 2026-10-10
 
 First release.

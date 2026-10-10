@@ -12,6 +12,7 @@ import {
   type ProjectConfigInfo,
   StyleReader,
 } from '../core/adapter';
+import { normalizeEol, targetEol } from '../core/eol';
 import { findFileUpwards } from '../core/executables';
 import type { CancellationSignal } from '../core/process';
 import type { FormatterDescriptor, FormatterStatus, OptionCapability, StyleOptions } from '../shared/types';
@@ -437,6 +438,9 @@ export function fromPrettierConfig(config: PrettierOptions, descriptorId: string
   return style;
 }
 
+/** Plugin-based formatters that only handle LF line endings correctly. */
+const LF_ONLY_PLUGINS = new Set(['prettier-toml', 'prettier-latex']);
+
 const JSON_STRINGIFY_FILES = new Set(['package.json', 'package-lock.json', 'composer.json']);
 
 export function parserFor(languageId: string, fileName: string): string | undefined {
@@ -596,6 +600,15 @@ export class PrettierAdapter implements FormatterAdapter {
       }
     }
 
+    // The TOML and LaTeX plugins treat the carriage return of a Windows line ending as content,
+    // which doubles it. For them the text is formatted with LF endings and converted back afterwards.
+    const convertEol = LF_ONLY_PLUGINS.has(this.descriptor.id);
+    const sourceText = convertEol ? normalizeEol(request.text, '\n') : request.text;
+    const wantedEol = convertEol ? targetEol(typeof options.endOfLine === 'string' ? options.endOfLine : 'auto', request.text) : undefined;
+    if (convertEol) {
+      options.endOfLine = 'lf';
+    }
+
     options.parser = parser;
     if (request.filePath) {
       options.filepath = request.filePath;
@@ -616,15 +629,15 @@ export class PrettierAdapter implements FormatterAdapter {
       );
     });
     try {
-      const formatted = await Promise.race([Promise.resolve(prettier.format(request.text, options)), timeout]);
+      let formatted = await Promise.race([Promise.resolve(prettier.format(sourceText, options)), timeout]);
       if (token.isCancellationRequested) {
         throw new FormatterError('cancelled', 'Formatting was cancelled.');
       }
       // The LaTeX plugin drops the final line break after some environments; files keep theirs.
       if (this.descriptor.id === 'prettier-latex' && formatted.length > 0 && !formatted.endsWith('\n')) {
-        return `${formatted}\n`;
+        formatted = `${formatted}\n`;
       }
-      return formatted;
+      return wantedEol ? normalizeEol(formatted, wantedEol) : formatted;
     } catch (error) {
       if (error instanceof FormatterError) {
         throw error;

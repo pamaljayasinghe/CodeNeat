@@ -284,8 +284,10 @@ export const dockerfmt: ExternalSpec = {
     lineLengthNote: 'dockerfmt never wraps long lines.',
     limitations: ['The file is formatted through a private temporary copy; your original is only changed through the editor.'],
   }),
+  // A launcher that cannot start (for example an npm shim without a binary for this platform)
+  // must not count as an installed formatter, so the version command has to succeed.
   versionArgs: ['version'],
-  versionOptional: true,
+  versionCheck: /dockerfmt|\d+\.\d+/i,
   async build({ style, applyStyle, inputFile }) {
     const args: string[] = [];
     if (applyStyle) {
