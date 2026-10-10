@@ -2,6 +2,13 @@
 
 All notable changes to CodeNeat are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-10-10
+
+### Changed
+
+- New CodeNeat icon in the Marketplace, the editor title bar and the dashboard.
+- THIRD_PARTY_NOTICES.md now names every library the extension includes, also the ones built into its own code and into the bundled formatting engines, with the full text of each licence.
+
 ## [1.0.0] - 2026-10-10
 
 ### Changed
