@@ -1,6 +1,6 @@
 # CodeNeat user guide
 
-This guide explains every CodeNeat feature, how to use it, and how to switch it off.
+This guide explains every CodeNeat feature, how to use it, and how to switch it off. For a shorter tour with screenshots, read [the introduction on Medium](https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc).
 
 ## Format a file
 
@@ -63,6 +63,31 @@ Open the dashboard with the CodeNeat icon in the Activity Bar, or **CodeNeat: Op
 - **Search** (press `/`) finds a setting by name.
 
 If a page shows *Want more control?*, another formatter for that language offers more options; one click switches to it.
+
+## Customize one language
+
+Every language can have its own settings, separate from the rest.
+
+1. Open the dashboard and pick the language in the **Language** box at the top (or just open a file of that language).
+2. On any style page, set **Applies to** to **Only *that language***.
+3. Change what you want and press **Apply**.
+
+The **Language-Specific Options** page holds the extras that exist for one language only, and lets you choose which formatter that language uses. Some useful ones:
+
+| Language | Setting | What it does |
+| --- | --- | --- |
+| XML | **XML: Whitespace in Text** → *Not meaningful (re-indent freely)* | Gives normal nested indentation. By default XML is formatted cautiously, because spaces inside XML can be data. If a formatted XML file has tags broken in odd places, change this. |
+| XML | **XML: Sort Attributes by Name** | Orders the attributes of every element alphabetically. |
+| Java | **Formatter for Java** → *clang-format (bundled)* | Unlocks more options for Java, such as brace position, spacing and blank lines. |
+| Python | **Quotes**, **Indentation Size**, **Python: Trailing Comma Keeps Lists Expanded** | Single or double quotes, 2 or 4 spaces, and how lists are laid out. |
+| C, C++, C# | **C / C++: Base Style** | Start from the LLVM, Google, Microsoft, Mozilla, WebKit, Chromium or GNU style, then adjust on top. |
+| SQL | **SQL: Dialect** and **SQL: Keyword Case** | Match your database, and write keywords in UPPER or lower case. |
+| Markdown | **Wrap Text Paragraphs** | Wrap prose at the line length, or keep one line per paragraph. |
+| HTML, Vue | **HTML Nesting and Whitespace**, **One Attribute per Line** | How tightly HTML is nested and whether each attribute gets its own line. |
+| Bash | **Indent Case Labels in Switch**, **Shell: Space After Redirect Operators** | Small layout choices for shell scripts. |
+| TOML | **TOML: Align "=" Signs**, **TOML: Sort Keys Alphabetically** | Line up or sort entries. |
+
+A setting made for one language never affects another. To undo it, press **Reset** next to the option.
 
 ## Profiles
 

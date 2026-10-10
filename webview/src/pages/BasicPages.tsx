@@ -727,6 +727,7 @@ export function HelpPage({ context }: { context: PageContext }) {
           <dd>Apache-2.0</dd>
         </dl>
         <div className="button-row">
+          <Button onClick={() => host.command('codeneat.openExternal', { url: 'https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc' })}>Read the Introduction on Medium</Button>
           <Button onClick={() => host.command('codeneat.openExternal', { url: 'https://github.com/pamaljayasinghe/CodeNeat' })}>Project on GitHub</Button>
           <Button onClick={() => host.command('codeneat.openExternal', { url: 'https://github.com/pamaljayasinghe/CodeNeat/issues' })}>Report a Problem</Button>
         </div>

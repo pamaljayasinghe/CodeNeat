@@ -4,6 +4,8 @@
 
 CodeNeat is a multi-language code formatter for Visual Studio Code. It formats 41 languages and file formats through their official formatting engines, and replaces hand-edited configuration files with a visual settings dashboard and a live before/after preview.
 
+**New here?** Read the introduction on Medium: [Stop Spending AI Tokens on Indentation: Meet CodeNeat](https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc).
+
 ## Highlights
 
 - **32 languages ready on install.** HTML, CSS, SCSS, Less, JavaScript, TypeScript, JSX, TSX, JSON, YAML, Markdown, MDX, Vue, Angular templates, GraphQL, XML, Java, Python, C, C++, C#, PHP, Go, Dart, Bash, Lua, SQL, TOML, Dockerfile, Protocol Buffers and LaTeX format out of the box. The engines (Prettier, Ruff, gofmt, clang-format, StyLua, shfmt, dart format and others) are built in. No other extension is required.
@@ -49,6 +51,19 @@ Every button, menu entry and automatic behaviour can be switched off: see **Sett
 | Workspace formatting      | Format a whole folder: preview the affected files, confirm, watch progress, cancel at any time, and read a summary. `node_modules`, build output, generated and binary files and everything in `.gitignore` are skipped.                                                                                                                                                                                      |
 | Formatter management      | See which formatters are installed, their version and location, and how to install the missing ones.                                                                                                                                                                                                                                                                                                          |
 | Project configuration     | `.editorconfig`, `.prettierrc`, `.clang-format`, `rustfmt.toml` and similar files are respected by default and never modified. The dashboard shows which source controls each option.                                                                                                                                                                                                                         |
+
+## Customize each language
+
+Any preference can apply to all languages or to one. Pick the language at the top of the dashboard, set **Applies to** to that language, change the option and press **Apply**. The **Language-Specific Options** page adds the extras that only one language has:
+
+- **XML:** choose whether whitespace is meaningful. Switch to *Not meaningful* for normal nested indentation.
+- **Java:** switch the formatter to *clang-format (bundled)* for control over braces, spacing and blank lines.
+- **C, C++, C#:** start from the LLVM, Google, Microsoft, Mozilla, WebKit, Chromium or GNU style.
+- **Python:** quote style, indentation size and list layout.
+- **SQL:** dialect and keyword case.
+- **Markdown, HTML, Vue, Bash, TOML, Lua:** their own wrapping, nesting, alignment and layout options.
+
+See [Customize one language](docs/usage.md#customize-one-language) in the user guide for the full table.
 
 ## How CodeNeat formats
 
@@ -100,6 +115,7 @@ Format Document and Format Selection are also in the editor's context menu, and 
 
 ## Documentation
 
+- [Introduction on Medium](https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc): why CodeNeat exists and a tour with screenshots
 - [User guide](docs/usage.md): every feature, how to use it and how to switch it off
 - [Supported languages](docs/languages.md)
 - [Formatter installation guide](docs/formatters.md)

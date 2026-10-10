@@ -334,6 +334,7 @@ export class DashboardPanel implements vscode.Disposable {
         );
         allowed.add('https://github.com/pamaljayasinghe/CodeNeat');
         allowed.add('https://github.com/pamaljayasinghe/CodeNeat/issues');
+        allowed.add('https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc');
         const url = args.url;
         if (url && allowed.has(url) && /^https:\/\//.test(url)) {
           await vscode.env.openExternal(vscode.Uri.parse(url));

@@ -428,13 +428,22 @@ kbd {
   background: var(--vscode-foreground);
   transition: transform 0.12s ease;
 }
+/* "On" uses a fixed green so the switch is visible in every theme, including themes whose button
+   colour is close to the background. */
 .switch.is-on .switch-track {
-  border-color: var(--vscode-button-background);
-  background: var(--vscode-button-background);
+  border-color: var(--vscode-charts-green, #2e9d5a);
+  background: var(--vscode-charts-green, #2e9d5a);
 }
 .switch.is-on .switch-thumb {
-  background: var(--vscode-button-foreground);
+  background: #ffffff;
   transform: translateX(16px);
+}
+.switch.is-on .switch-text {
+  color: var(--vscode-foreground);
+}
+body.vscode-high-contrast .switch.is-on .switch-track,
+body.vscode-high-contrast-light .switch.is-on .switch-track {
+  border-color: var(--vscode-contrastActiveBorder, currentColor);
 }
 .switch-text {
   min-width: 22px;
@@ -737,9 +746,16 @@ kbd {
 }
 .option-control {
   display: grid;
+  /* One column that may shrink: a control can never be wider than its box. */
+  grid-template-columns: minmax(0, 1fr);
   gap: 8px;
   align-content: start;
   min-width: 0;
+}
+.option-control .select {
+  width: 100%;
+  min-width: 0;
+  text-overflow: ellipsis;
 }
 .option-meta {
   display: flex;
