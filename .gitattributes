@@ -1,0 +1,7 @@
+# Test fixtures must have the same line endings on every operating system, otherwise formatter
+# output differs between Windows and the other platforms. Windows line endings are tested
+# explicitly in tests/integration/crlf.test.ts.
+tests/fixtures/** text eol=lf
+*.sh text eol=lf
+*.png binary
+*.vsix binary

@@ -8,6 +8,11 @@ updates:
     schedule:
       interval: weekly
     open-pull-requests-limit: 10
+    # Major upgrades of build tools can need a newer Node.js or code changes, so they are done by
+    # hand. Dependabot proposes compatible (minor and patch) updates only.
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       formatting-engines:
         dependency-type: production
