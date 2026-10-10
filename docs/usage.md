@@ -114,7 +114,7 @@ Everything CodeNeat adds can be switched off in **CodeNeat Settings → Advanced
 | The keyboard shortcut | **Keyboard Shortcuts** → search "CodeNeat" → remove or change it |
 | Project files overriding your settings | `codeneat.respectProjectConfig` |
 
-To stop using CodeNeat as the default formatter, remove `"editor.defaultFormatter": "pamaljayasinghe.codeneat"` from your settings, or choose another formatter with **Format Document With…**. To remove CodeNeat completely, uninstall it from the Extensions view; it leaves nothing behind except your `codeneat.*` settings.
+To stop using CodeNeat as the default formatter, remove `"editor.defaultFormatter": "PamalJayasinghe.codeneat"` from your settings, or choose another formatter with **Format Document With…**. To remove CodeNeat completely, uninstall it from the Extensions view; it leaves nothing behind except your `codeneat.*` settings.
 
 ## When something does not work
 

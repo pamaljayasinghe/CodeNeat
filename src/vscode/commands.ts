@@ -324,7 +324,7 @@ export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string
       : picked.target === vscode.ConfigurationTarget.Global
         ? inspected?.globalValue
         : inspected?.workspaceValue;
-    if (existing && existing !== EXTENSION_ID) {
+    if (existing && existing.toLowerCase() !== EXTENSION_ID.toLowerCase()) {
       const replace = 'Replace';
       const answer = await vscode.window.showWarningMessage(
         `"${existing}" is currently the default formatter here. Replace it with CodeNeat?`,

@@ -318,7 +318,7 @@ export class DashboardPanel implements vscode.Disposable {
         await vscode.commands.executeCommand('workbench.action.openSettingsJson');
         return;
       case 'codeneat.openWalkthrough':
-        await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'pamaljayasinghe.codeneat#codeneat.gettingStarted', false);
+        await vscode.commands.executeCommand('workbench.action.openWalkthrough', 'PamalJayasinghe.codeneat#codeneat.gettingStarted', false);
         return;
       case 'codeneat.manageWorkspaceTrust':
         await vscode.commands.executeCommand('workbench.trust.manage');

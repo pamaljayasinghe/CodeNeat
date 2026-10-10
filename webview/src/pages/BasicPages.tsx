@@ -6,7 +6,7 @@ import type { PageContext } from '../context';
 import { host } from '../host';
 import { profilesOf, setDefaultProfile } from '../state';
 
-const EXTENSION_ID = 'pamaljayasinghe.codeneat';
+const EXTENSION_ID = 'PamalJayasinghe.codeneat';
 
 function PageHeader({ title, summary }: { title: string; summary: string }) {
   return (
@@ -138,7 +138,7 @@ export function AutoPage({ context }: { context: PageContext }) {
   const set = <K extends keyof EditorSettings>(key: K, value: EditorSettings[K]): void =>
     context.update((current) => ({ ...current, editor: { ...current.editor, [key]: value } }));
   const languageDefault = view ? state.defaultFormatter.byLanguage[view.language.id] : state.defaultFormatter.global;
-  const isDefault = languageDefault === EXTENSION_ID;
+  const isDefault = languageDefault?.toLowerCase() === EXTENSION_ID.toLowerCase();
   const rangeSupported = !!view?.formatter?.rangeLanguages.includes(view.language.id);
   const typeSupported = view?.formatter?.kind === 'bundled';
 

@@ -8,7 +8,7 @@ import * as path from 'node:path';
 import * as vscode from 'vscode';
 import type { CodeNeatApi } from '../../src/extension';
 
-const EXTENSION_ID = 'pamaljayasinghe.codeneat';
+const EXTENSION_ID = 'PamalJayasinghe.codeneat';
 const workspaceDir = process.env.CODENEAT_E2E_WORKSPACE ?? '';
 const tests: { name: string; body: () => Promise<void> }[] = [];
 const test = (name: string, body: () => Promise<void>): void => void tests.push({ name, body });

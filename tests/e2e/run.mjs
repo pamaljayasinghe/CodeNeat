@@ -64,7 +64,7 @@ try {
     if (install.status !== 0) {
       throw new Error('VS Code could not install codeneat.vsix');
     }
-    const installed = readdirSync(installDir).find((name) => name.startsWith('pamaljayasinghe.codeneat-'));
+    const installed = readdirSync(installDir).find((name) => name.toLowerCase().startsWith('pamaljayasinghe.codeneat-'));
     if (!installed) {
       throw new Error('The VSIX was not installed into the extensions directory.');
     }

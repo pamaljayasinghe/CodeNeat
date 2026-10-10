@@ -20,7 +20,7 @@ import {
   validateCustomFormatters,
 } from '../shared/validate';
 
-export const EXTENSION_ID = 'pamaljayasinghe.codeneat';
+export const EXTENSION_ID = 'PamalJayasinghe.codeneat';
 const SECTION = 'codeneat';
 
 function isEmpty(value: unknown): boolean {

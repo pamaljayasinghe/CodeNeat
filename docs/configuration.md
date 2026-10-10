@@ -63,7 +63,7 @@ These are VS Code features that call the *default formatter*:
 
 ```json
 {
-  "editor.defaultFormatter": "pamaljayasinghe.codeneat",
+  "editor.defaultFormatter": "PamalJayasinghe.codeneat",
   "editor.formatOnSave": true
 }
 ```
