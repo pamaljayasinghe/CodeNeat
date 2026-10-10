@@ -391,6 +391,18 @@ export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string
     vscode.commands.registerCommand('codeneat.openUserGuide', () =>
       vscode.commands.executeCommand('markdown.showPreview', vscode.Uri.joinPath(app.context.extensionUri, 'docs', 'usage.md')),
     ),
+    // The button in the editor title bar: by default it shows the changes first and asks.
+    vscode.commands.registerCommand('codeneat.editorButton', async () => {
+      const editor = activeEditor(app);
+      if (!editor) {
+        return;
+      }
+      if (app.config.read(editor.document.uri).editorButtonAction === 'format') {
+        await formatDocument();
+      } else {
+        await review.start(editor, true);
+      }
+    }),
     vscode.commands.registerCommand('codeneat.formatWithReview', async () => {
       const editor = activeEditor(app);
       return editor ? review.start(editor) : false;

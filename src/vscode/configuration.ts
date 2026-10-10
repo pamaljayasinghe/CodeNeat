@@ -122,6 +122,7 @@ export class ConfigurationManager {
       showStatusBar: config.get<boolean>('showStatusBar', true),
       enabled: config.get<boolean>('enabled', true),
       showEditorButton: config.get<boolean>('showEditorButton', true),
+      editorButtonAction: config.get<string>('editorButtonAction', 'review') === 'format' ? 'format' : 'review',
       showContextMenu: config.get<boolean>('showContextMenu', true),
     };
   }
@@ -254,6 +255,7 @@ export class ConfigurationManager {
     await this.writeScalar('showStatusBar', draft.showStatusBar);
     await this.writeScalar('enabled', draft.enabled);
     await this.writeScalar('showEditorButton', draft.showEditorButton);
+    await this.writeScalar('editorButtonAction', draft.editorButtonAction);
     await this.writeScalar('showContextMenu', draft.showContextMenu);
     if (vscode.workspace.isTrusted) {
       await this.writeScalar('toolPaths', draft.toolPaths);

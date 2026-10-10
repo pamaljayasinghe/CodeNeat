@@ -214,6 +214,7 @@ export function sanitizeDraft(input: unknown): SettingsDraft {
     showStatusBar: bool(raw.showStatusBar, true),
     enabled: bool(raw.enabled, true),
     showEditorButton: bool(raw.showEditorButton, true),
+    editorButtonAction: raw.editorButtonAction === 'format' ? 'format' : 'review',
     showContextMenu: bool(raw.showContextMenu, true),
   };
 }

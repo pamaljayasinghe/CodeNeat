@@ -38,6 +38,7 @@ function makeState(languageId: string | undefined): DashboardState {
       showStatusBar: true,
       enabled: true,
       showEditorButton: true,
+      editorButtonAction: 'review',
       showContextMenu: true,
     },
     editor: DEFAULT_EDITOR_SETTINGS,
@@ -194,6 +195,29 @@ describe('settings dashboard in a real DOM', () => {
     expect(preview?.request).toMatchObject({ languageId: 'typescript', formatterId: 'prettier' });
     // "Only this language" is still selected from the previous test, so the value is stored for TypeScript.
     expect(preview?.request.draft.user.languages.typescript?.style?.quoteStyle).toBe('single');
+  });
+
+  it('Formatter Management separates what is built in, what is needed and what is only optional', async () => {
+    await send({ type: 'state', reason: 'init', state: makeState('java') });
+    await send({ type: 'navigate', page: 'formatters', languageId: 'java' });
+    const page = text();
+    expect(page).toContain('of 41 languages are ready to format');
+    expect(page).toContain('Need their own formatter: F#, Ruby, Rust, Kotlin, Scala, Swift, PowerShell, R, Terraform');
+    const card = (title: string): string => [...container.querySelectorAll('.card')].find((element) => element.querySelector('h3')?.textContent === title)?.textContent ?? '';
+    // Java and Python work out of the box; their external tools are alternatives, not requirements.
+    expect(card('Prettier for Java')).toContain('Built in');
+    expect(card('Ruff (bundled)')).toContain('Built in');
+    expect(card('google-java-format')).toContain('Optional · not needed');
+    expect(card('google-java-format')).toContain('You do not need to install this.');
+    expect(card('google-java-format')).not.toContain('Needs install');
+    expect(card('Ruff')).toContain('Optional · not needed');
+    expect(card('Ruff')).toContain('Python already formats with Ruff (bundled)');
+    // Rust really has no built-in engine.
+    expect(card('rustfmt')).toContain('Needs install');
+    expect(card('rustfmt')).toContain('Install rustfmt…');
+    expect(page).not.toContain('Missing');
+    const sections = [...container.querySelectorAll('.formatter-section > h3')].map((heading) => heading.textContent?.replace(/ \(\d+\)$/, ''));
+    expect(sections).toEqual(['Built in', 'Needs to be installed', 'Optional alternatives']);
   });
 
   it('search finds settings by plain words and by native option names', async () => {

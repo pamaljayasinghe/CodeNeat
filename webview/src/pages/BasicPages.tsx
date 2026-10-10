@@ -32,7 +32,6 @@ export function OverviewPage({ context }: { context: PageContext }) {
   const { state, view } = context;
   const editor = state.activeEditor;
   const formatters = state.formatters;
-  const available = formatters.filter((formatter) => state.statuses[formatter.id]?.available).length;
   const ready = state.languages.filter((language) =>
     formatters.some((formatter) => formatter.languages.includes(language.id) && state.statuses[formatter.id]?.available),
   ).length;
@@ -92,10 +91,8 @@ export function OverviewPage({ context }: { context: PageContext }) {
             <dd>
               {ready} of {state.languages.length}
             </dd>
-            <dt>Formatters available</dt>
-            <dd>
-              {available} of {formatters.length}
-            </dd>
+            <dt>Built-in formatters</dt>
+            <dd>{formatters.filter((formatter) => formatter.kind === 'bundled' && state.statuses[formatter.id]?.available).length} (nothing to install)</dd>
             <dt>Default profile</dt>
             <dd>{profilesOf(state, context.draft).find((profile) => profile.id === (context.draft.workspace.defaultProfile ?? context.draft.user.defaultProfile ?? 'standard'))?.name ?? 'Standard'}</dd>
             <dt>Format on Save</dt>
@@ -514,8 +511,23 @@ export function AdvancedPage({ context }: { context: PageContext }) {
         >
           <Toggle label="CodeNeat Formatting" checked={draft.enabled} onChange={(value) => set('enabled', value)} />
         </SettingRow>
-        <SettingRow label="Format Button in the Editor Title Bar" description="The CodeNeat button at the top right of every file CodeNeat can format. One click formats the file.">
+        <SettingRow label="Format Button in the Editor Title Bar" description="The CodeNeat button at the top right of every file CodeNeat can format.">
           <Toggle label="Format Button in the Editor Title Bar" checked={draft.showEditorButton} onChange={(value) => set('showEditorButton', value)} />
+        </SettingRow>
+        <SettingRow
+          label="When I Click the Format Button"
+          description="“Show the changes first” formats the file, highlights every change in green and asks whether to keep them. “Format straight away” applies the formatting without asking."
+        >
+          <Select
+            label="When I Click the Format Button"
+            value={draft.editorButtonAction}
+            disabled={!draft.showEditorButton}
+            choices={[
+              { value: 'review', label: 'Show the changes first, then ask' },
+              { value: 'format', label: 'Format straight away' },
+            ]}
+            onChange={(value) => set('editorButtonAction', value === 'format' ? 'format' : 'review')}
+          />
         </SettingRow>
         <SettingRow label="CodeNeat in the Right-Click Menu" description="Format Document, Format Selection and Format Document with Review in the editor’s context menu.">
           <Toggle label="CodeNeat in the Right-Click Menu" checked={draft.showContextMenu} onChange={(value) => set('showContextMenu', value)} />
@@ -665,6 +677,32 @@ export function HelpPage({ context }: { context: PageContext }) {
         </ol>
         <p className="muted">Each of these can be switched off on the Advanced page.</p>
       </Card>
+      <Card title="Limits">
+        <dl className="facts">
+          <dt>File size</dt>
+          <dd>
+            Up to {context.draft.maxFileSizeKB.toLocaleString()} KB per file (about {Math.round(context.draft.maxFileSizeKB / 1024)} million characters). You can
+            raise this to 100 MB on the Advanced page.
+          </dd>
+          <dt>Lines</dt>
+          <dd>No fixed limit. A 2 MB file is typically 30,000 to 90,000 lines of code.</dd>
+          <dt>Time per file</dt>
+          <dd>{Math.round(context.draft.timeoutMs / 1000)} seconds, adjustable up to 120 seconds on the Advanced page.</dd>
+          <dt>Typical speed</dt>
+          <dd>A 2 MB file formats in under a second for Go and Python, and in about 3 to 8 seconds for TypeScript, Java, C++ and JSON.</dd>
+          <dt>Format Workspace</dt>
+          <dd>Up to 20,000 files per run. Format sub-folders separately for larger projects.</dd>
+          <dt>Line length</dt>
+          <dd>40 to 300 characters.</dd>
+          <dt>Indentation</dt>
+          <dd>1 to 16 spaces, or tabs.</dd>
+          <dt>Languages</dt>
+          <dd>{state.languages.length}, plus any you add as a custom formatter.</dd>
+          <dt>Profiles</dt>
+          <dd>Unlimited.</dd>
+        </dl>
+        <p className="muted">A file over the size or time limit is left exactly as it is, and CodeNeat tells you why.</p>
+      </Card>
       <Card title="Common questions">
         {FAQ.map((entry) => (
           <details key={entry.question} className="faq">
@@ -689,6 +727,7 @@ export function HelpPage({ context }: { context: PageContext }) {
           <dd>Apache-2.0</dd>
         </dl>
         <div className="button-row">
+          <Button onClick={() => host.command('codeneat.openExternal', { url: 'https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc' })}>Read the Introduction on Medium</Button>
           <Button onClick={() => host.command('codeneat.openExternal', { url: 'https://github.com/pamaljayasinghe/CodeNeat' })}>Project on GitHub</Button>
           <Button onClick={() => host.command('codeneat.openExternal', { url: 'https://github.com/pamaljayasinghe/CodeNeat/issues' })}>Report a Problem</Button>
         </div>

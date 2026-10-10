@@ -1,6 +1,6 @@
 # CodeNeat user guide
 
-This guide explains every CodeNeat feature, how to use it, and how to switch it off.
+This guide explains every CodeNeat feature, how to use it, and how to switch it off. For a shorter tour with screenshots, read [the introduction on Medium](https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc).
 
 ## Format a file
 
@@ -8,7 +8,7 @@ Open a file in a language CodeNeat supports, then use any of these:
 
 | Way | How |
 | --- | --- |
-| Editor button | Click the CodeNeat button at the top right of the editor. |
+| Editor button | Click the CodeNeat button at the top right of the editor. It formats the file, highlights every change in green and asks **Keep Changes** or **Undo Changes**. |
 | Keyboard | `Ctrl+Alt+Shift+F` on Windows and Linux, `⌘+⌥+⇧+F` on macOS. |
 | Right-click menu | Right-click in the file → **CodeNeat: Format Document**. |
 | Status bar | Click **CodeNeat** at the bottom right, then pick an action from the menu. |
@@ -64,6 +64,31 @@ Open the dashboard with the CodeNeat icon in the Activity Bar, or **CodeNeat: Op
 
 If a page shows *Want more control?*, another formatter for that language offers more options; one click switches to it.
 
+## Customize one language
+
+Every language can have its own settings, separate from the rest.
+
+1. Open the dashboard and pick the language in the **Language** box at the top (or just open a file of that language).
+2. On any style page, set **Applies to** to **Only *that language***.
+3. Change what you want and press **Apply**.
+
+The **Language-Specific Options** page holds the extras that exist for one language only, and lets you choose which formatter that language uses. Some useful ones:
+
+| Language | Setting | What it does |
+| --- | --- | --- |
+| XML | **XML: Whitespace in Text** → *Not meaningful (re-indent freely)* | Gives normal nested indentation. By default XML is formatted cautiously, because spaces inside XML can be data. If a formatted XML file has tags broken in odd places, change this. |
+| XML | **XML: Sort Attributes by Name** | Orders the attributes of every element alphabetically. |
+| Java | **Formatter for Java** → *clang-format (bundled)* | Unlocks more options for Java, such as brace position, spacing and blank lines. |
+| Python | **Quotes**, **Indentation Size**, **Python: Trailing Comma Keeps Lists Expanded** | Single or double quotes, 2 or 4 spaces, and how lists are laid out. |
+| C, C++, C# | **C / C++: Base Style** | Start from the LLVM, Google, Microsoft, Mozilla, WebKit, Chromium or GNU style, then adjust on top. |
+| SQL | **SQL: Dialect** and **SQL: Keyword Case** | Match your database, and write keywords in UPPER or lower case. |
+| Markdown | **Wrap Text Paragraphs** | Wrap prose at the line length, or keep one line per paragraph. |
+| HTML, Vue | **HTML Nesting and Whitespace**, **One Attribute per Line** | How tightly HTML is nested and whether each attribute gets its own line. |
+| Bash | **Indent Case Labels in Switch**, **Shell: Space After Redirect Operators** | Small layout choices for shell scripts. |
+| TOML | **TOML: Align "=" Signs**, **TOML: Sort Keys Alphabetically** | Line up or sort entries. |
+
+A setting made for one language never affects another. To undo it, press **Reset** next to the option.
+
 ## Profiles
 
 A profile is a named set of preferences. **Standard**, **Compact**, **Readable** and **Team Style** are built in.
@@ -105,6 +130,7 @@ Everything CodeNeat adds can be switched off in **CodeNeat Settings → Advanced
 | --- | --- |
 | All CodeNeat formatting (everywhere, or for one workspace) | `codeneat.enabled` |
 | The button in the editor title bar | `codeneat.showEditorButton` |
+| The question after clicking the button (format straight away instead) | `codeneat.editorButtonAction` set to `format` |
 | CodeNeat entries in the right-click menu | `codeneat.showContextMenu` |
 | The status bar item | `codeneat.showStatusBar` |
 | Review in the editor | `codeneat.inlineReview` (off by default) |
@@ -115,6 +141,21 @@ Everything CodeNeat adds can be switched off in **CodeNeat Settings → Advanced
 | Project files overriding your settings | `codeneat.respectProjectConfig` |
 
 To stop using CodeNeat as the default formatter, remove `"editor.defaultFormatter": "PamalJayasinghe.codeneat"` from your settings, or choose another formatter with **Format Document With…**. To remove CodeNeat completely, uninstall it from the Extensions view; it leaves nothing behind except your `codeneat.*` settings.
+
+## Limits
+
+| | |
+| --- | --- |
+| File size | 2 MB per file by default (about 2 million characters). Raise it up to 100 MB under **Advanced → Largest File to Format**. |
+| Lines | No fixed limit. A 2 MB file is typically 30,000 to 90,000 lines of code. |
+| Time per file | 10 seconds by default. Raise it up to 120 seconds under **Advanced → Time Limit per File**. |
+| Typical speed | A 2 MB file formats in under a second for Go and Python, and in about 3 to 8 seconds for TypeScript, Java, C++ and JSON. |
+| Format Workspace | Up to 20,000 files per run. Format sub-folders separately for larger projects. |
+| Line length | 40 to 300 characters. |
+| Indentation | 1 to 16 spaces, or tabs. |
+| Profiles | Unlimited. |
+
+A file over the size or time limit is left exactly as it is, and CodeNeat tells you why. The same list is on the **Help and Diagnostics** page of the dashboard.
 
 ## When something does not work
 

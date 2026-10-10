@@ -106,7 +106,11 @@ export class InlineReview implements vscode.Disposable, vscode.CodeLensProvider 
   }
 
   /** Formats the document in place and marks what changed. Returns true when a review was started. */
-  async start(editor: vscode.TextEditor): Promise<boolean> {
+  /**
+   * @param prompt also show a message with Keep and Undo buttons, for people who start the review
+   *               with the mouse and may not know the Enter and Escape keys.
+   */
+  async start(editor: vscode.TextEditor, prompt = false): Promise<boolean> {
     const document = editor.document;
     this.end(document.uri);
     const original = document.getText();
@@ -147,7 +151,30 @@ export class InlineReview implements vscode.Disposable, vscode.CodeLensProvider 
       editor.revealRange(new vscode.Range(first.line, 0, first.line, 0), vscode.TextEditorRevealType.InCenterIfOutsideViewport);
     }
     vscode.window.setStatusBarMessage(`$(diff) CodeNeat: review the highlighted changes — Enter keeps them, Escape undoes them`, 8000);
+    if (prompt) {
+      void this.ask(document.uri, hunks.length, result.formatterName);
+    }
     return true;
+  }
+
+  private async ask(uri: vscode.Uri, changes: number, formatterName: string): Promise<void> {
+    const keep = 'Keep Changes';
+    const undo = 'Undo Changes';
+    const name = uri.path.split('/').pop() ?? 'this file';
+    const choice = await vscode.window.showInformationMessage(
+      `CodeNeat formatted ${name} with ${formatterName}: ${changes} ${changes === 1 ? 'change is' : 'changes are'} highlighted in green. Keep them?`,
+      keep,
+      undo,
+    );
+    // The review may already have been answered with Enter or Escape, or ended by typing.
+    if (!this.sessions.has(uri.toString())) {
+      return;
+    }
+    if (choice === keep) {
+      this.keep(uri);
+    } else if (choice === undo) {
+      await this.discard(uri);
+    }
   }
 
   /** Keeps the formatted text and removes the highlights. */

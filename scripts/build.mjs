@@ -61,6 +61,8 @@ function copyStatic() {
   for (const file of ['sidebar.js', 'sidebar.css']) {
     copyFileSync(join(root, 'webview', 'sidebar', file), join(root, 'dist', 'webview', file));
   }
+  // The logo is shown inside the webviews, which may only load files from dist/webview.
+  copyFileSync(join(root, 'assets', 'button.png'), join(root, 'dist', 'webview', 'logo.png'));
 }
 
 if (e2e) {

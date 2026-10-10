@@ -314,6 +314,23 @@ test('inline review shows the formatted code for approval: Escape restores, Ente
   assert.equal(document.getText(), formatted, 'Keep leaves the formatted text');
   assert.equal(api.isInlineReviewActive(), false);
 
+  // The editor title button shows the changes first by default, and formats directly when told to.
+  const third = await vscode.workspace.openTextDocument({ language: 'javascript', content: original });
+  await vscode.window.showTextDocument(third, { preview: false });
+  await vscode.commands.executeCommand('codeneat.editorButton');
+  assert.equal(third.getText(), formatted);
+  assert.ok(api.isInlineReviewActive(), 'the button starts a review');
+  await vscode.commands.executeCommand('codeneat.discardInlineReview');
+  assert.equal(third.getText(), original);
+  await setConfig('codeneat', 'editorButtonAction', 'format');
+  try {
+    await vscode.commands.executeCommand('codeneat.editorButton');
+    assert.equal(third.getText(), formatted);
+    assert.equal(api.isInlineReviewActive(), false, 'no review when set to format straight away');
+  } finally {
+    await setConfig('codeneat', 'editorButtonAction', undefined);
+  }
+
   // With the setting on, the normal Format Document command uses the review too.
   const second = await vscode.workspace.openTextDocument({ language: 'javascript', content: original });
   await vscode.window.showTextDocument(second, { preview: false });

@@ -23,6 +23,7 @@ Everything on this page can be changed in the dashboard (**CodeNeat: Open Settin
 | `codeneat.showStatusBar` | `true` | Show the active formatter in the status bar. |
 | `codeneat.enabled` | `true` | Master switch. When off, CodeNeat formats nothing. Can be set per workspace. |
 | `codeneat.showEditorButton` | `true` | Show the Format button in the editor title bar. |
+| `codeneat.editorButtonAction` | `review` | What the editor title button does: `review` shows the changes and asks first, `format` formats straight away. |
 | `codeneat.showContextMenu` | `true` | Show CodeNeat entries in the editor's right-click menu. |
 
 Example:

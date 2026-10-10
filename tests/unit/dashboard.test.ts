@@ -34,6 +34,7 @@ function makeState(available: string[] = ['prettier', 'prettier-java']): Dashboa
       showStatusBar: true,
       enabled: true,
       showEditorButton: true,
+      editorButtonAction: 'review',
       showContextMenu: true,
     },
     editor: DEFAULT_EDITOR_SETTINGS,

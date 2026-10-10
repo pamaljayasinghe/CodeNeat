@@ -228,6 +228,8 @@ export interface CodeNeatSettings {
   enabled: boolean;
   /** Show the Format button in the editor title bar. */
   showEditorButton: boolean;
+  /** What the editor title button does: show the changes for approval first, or format straight away. */
+  editorButtonAction: 'review' | 'format';
   /** Show CodeNeat entries in the editor's right-click menu. */
   showContextMenu: boolean;
 }
@@ -330,6 +332,8 @@ export interface SettingsDraft {
   enabled: boolean;
   /** Show the Format button in the editor title bar. */
   showEditorButton: boolean;
+  /** What the editor title button does: show the changes for approval first, or format straight away. */
+  editorButtonAction: 'review' | 'format';
   /** Show CodeNeat entries in the editor's right-click menu. */
   showContextMenu: boolean;
 }

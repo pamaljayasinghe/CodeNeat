@@ -127,6 +127,7 @@ export class DashboardPanel implements vscode.Disposable {
     const nonce = createNonce();
     const script = webview.asWebviewUri(vscode.Uri.joinPath(root, 'main.js'));
     const style = webview.asWebviewUri(vscode.Uri.joinPath(root, 'main.css'));
+    const logo = webview.asWebviewUri(vscode.Uri.joinPath(root, 'logo.png'));
     const csp = [
       "default-src 'none'",
       `style-src ${webview.cspSource}`,
@@ -146,7 +147,7 @@ export class DashboardPanel implements vscode.Disposable {
 <title>CodeNeat Settings</title>
 </head>
 <body>
-<div id="root" role="application" aria-label="CodeNeat Settings"></div>
+<div id="root" role="application" aria-label="CodeNeat Settings" data-logo="${logo}"></div>
 <script nonce="${nonce}" src="${script}"></script>
 </body>
 </html>`;
@@ -333,6 +334,7 @@ export class DashboardPanel implements vscode.Disposable {
         );
         allowed.add('https://github.com/pamaljayasinghe/CodeNeat');
         allowed.add('https://github.com/pamaljayasinghe/CodeNeat/issues');
+        allowed.add('https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc');
         const url = args.url;
         if (url && allowed.has(url) && /^https:\/\//.test(url)) {
           await vscode.env.openExternal(vscode.Uri.parse(url));
