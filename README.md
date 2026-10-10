@@ -16,11 +16,22 @@ CodeNeat is a multi-language code formatter for Visual Studio Code. It formats 4
 ## Getting started
 
 1. Open a supported file.
-2. Click the **CodeNeat** icon in the Activity Bar, or run **CodeNeat: Open Settings**.
-3. Choose your preferences: line length, indentation, quotes, semicolons and more.
-4. Watch the live preview. It runs the real formatter on sample code or on your current file.
-5. Press **Apply**, then run **CodeNeat: Format Document**.
-6. Optionally, open **Auto Formatting**, make CodeNeat the default formatter, and switch on **Format on Save**.
+2. Click the **CodeNeat button** at the top right of the editor to format it. One Undo restores the file.
+3. To choose your style, click the **CodeNeat** icon in the Activity Bar (or run **CodeNeat: Open Settings**), change a preference, watch the live preview, and press **Apply**.
+4. To format on every save, open **Auto Formatting**, make CodeNeat the default formatter, and switch on **Format on Save**.
+
+## Ways to format
+
+| Way | How |
+| --- | --- |
+| Editor button | The CodeNeat button at the top right of the editor. |
+| Keyboard | `Ctrl+Alt+Shift+F` (Windows, Linux) or `⌘+⌥+⇧+F` (macOS). |
+| Right-click menu | **CodeNeat: Format Document**, **Format Selection** or **Format Document with Review**. |
+| Status bar | Click **CodeNeat** at the bottom right for a menu of actions. |
+| Automatically | Format on Save, on Paste and on Type. |
+| With review | See the changes highlighted in the editor, then press Enter to keep them or Escape to undo. |
+
+Every button, menu entry and automatic behaviour can be switched off: see **Settings → Advanced → Buttons, menus and on/off**, or the [user guide](docs/usage.md#switch-things-off). The master switch `codeneat.enabled` turns CodeNeat off entirely, for everything or for a single workspace.
 
 ## What you can do
 
@@ -32,7 +43,8 @@ CodeNeat is a multi-language code formatter for Visual Studio Code. It formats 4
 | Style options | Quotes, semicolons, trailing commas, brace position, spacing, blank lines, import sorting and language-specific options, each offered only where the formatter really supports it. |
 | Per-language settings | Every preference can apply to all languages or to one language, in your own settings or in the workspace. |
 | Profiles | Standard, Compact, Readable and Team Style are built in. Create, edit, duplicate, rename, delete, import and export your own, and assign one per language or per workspace. |
-| Live preview | Side-by-side original and formatted code with syntax highlighting and changed-line highlighting. |
+| Live preview | Side-by-side original and formatted code with syntax highlighting and changed-line highlighting. It follows your settings and your file as you edit. |
+| Review before changing | **Format Document with Review** shows the formatted code right in your editor with every changed line highlighted; hover a line to see what it replaced, press Enter to keep the changes or Escape to undo them. **Preview Formatting** opens a live side-by-side diff that updates while you type. **Review Changes on Save** tells you what would change after each save and formats only when you approve. |
 | Formatting | Format Document, Format Selection, Format on Save, Format on Paste and Format on Type through VS Code's native formatting system, with normal undo and redo. |
 | Workspace formatting | Format a whole folder: preview the affected files, confirm, watch progress, cancel at any time, and read a summary. `node_modules`, build output, generated and binary files and everything in `.gitignore` are skipped. |
 | Formatter management | See which formatters are installed, their version and location, and how to install the missing ones. |
@@ -56,9 +68,10 @@ Per-language formatter details and verification status are listed in the [langua
 | --- | --- |
 | CodeNeat: Open Settings | Opens the settings dashboard. |
 | CodeNeat: Format Document | Formats the current file. |
+| CodeNeat: Format Document with Review | Formats the file and highlights every change in the editor. Enter keeps the changes, Escape undoes them. |
 | CodeNeat: Format Selection | Formats the selected code, where the formatter supports it. |
 | CodeNeat: Format Workspace | Formats many files after showing you the list and asking for confirmation. |
-| CodeNeat: Preview Formatting | Opens a diff of the current file and its formatted version without changing it. |
+| CodeNeat: Preview Formatting (Live) | Opens a diff of the current file and its formatted version that updates as you edit. Nothing changes until you press Apply. |
 | CodeNeat: Check Formatting | Tells you whether the current file is formatted. |
 | CodeNeat: Select Formatter | Chooses the formatter for the current language. |
 | CodeNeat: Select Profile | Chooses a formatting profile. |
@@ -72,6 +85,7 @@ Format Document and Format Selection are also in the editor's context menu, and 
 
 ## Documentation
 
+- [User guide](docs/usage.md): every feature, how to use it and how to switch it off
 - [Supported languages](docs/languages.md)
 - [Formatter installation guide](docs/formatters.md)
 - [Configuration reference](docs/configuration.md) and [options reference](docs/options.md)
@@ -89,4 +103,4 @@ Or in VS Code: Extensions view → **…** menu → **Install from VSIX…**. Re
 
 ## Licence
 
-CodeNeat is released under the [Apache License 2.0](LICENSE). The bundled formatting engines keep their own licences: Prettier and its XML, PHP, LaTeX and TOML plugins (MIT), prettier-plugin-java (Apache-2.0), sql-formatter (MIT), the @wasm-fmt builds of gofmt, Ruff, clang-format, StyLua, shfmt and dart format (MIT packaging; the engines keep their upstream licences: BSD-3-Clause, MIT, Apache-2.0 with LLVM exception, MPL-2.0, BSD-3-Clause and BSD-3-Clause) and dockerfmt (MIT).
+CodeNeat is free and open source, released under the [Apache License 2.0](LICENSE). Every component it includes is open source under a permissive licence; see [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) for the full list. The bundled formatting engines keep their own licences: Prettier and its XML, PHP, LaTeX and TOML plugins (MIT), prettier-plugin-java (Apache-2.0), sql-formatter (MIT), the @wasm-fmt builds of gofmt, Ruff, clang-format, StyLua, shfmt and dart format (MIT packaging; the engines keep their upstream licences: BSD-3-Clause, MIT, Apache-2.0 with LLVM exception, MPL-2.0, BSD-3-Clause and BSD-3-Clause) and dockerfmt (MIT).

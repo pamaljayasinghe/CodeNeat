@@ -84,7 +84,7 @@ export function Preview({ state, draft, view }: PreviewProps) {
     }, DEBOUNCE_MS);
     return () => clearTimeout(timer);
     // `nonce` lets the Reset button force a fresh run.
-  }, [languageId, formatterId, effectiveSource, draftKey, sample, state.activeEditor?.uri, state.statuses, nonce]);
+  }, [languageId, formatterId, effectiveSource, draftKey, sample, state.activeEditor?.uri, effectiveSource === 'editor' ? state.activeEditor?.revision : 0, state.statuses, nonce]);
 
   useEffect(
     () => () => {

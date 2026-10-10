@@ -204,12 +204,17 @@ export function sanitizeDraft(input: unknown): SettingsDraft {
     editor: sanitizeEditorSettings(raw.editor),
     respectProjectConfig: bool(raw.respectProjectConfig, true),
     codeneatFormatOnType: bool(raw.codeneatFormatOnType, true),
+    previewOnSave: bool(raw.previewOnSave, false),
+    inlineReview: bool(raw.inlineReview, false),
     timeoutMs: clampNumber(raw.timeoutMs, 500, 120000, 10000),
     maxFileSizeKB: clampNumber(raw.maxFileSizeKB, 16, 102400, 2048),
     workspaceExclude: sanitizeStringList(raw.workspaceExclude),
     useGitignore: bool(raw.useGitignore, true),
     toolPaths: sanitizeToolPaths(raw.toolPaths),
     showStatusBar: bool(raw.showStatusBar, true),
+    enabled: bool(raw.enabled, true),
+    showEditorButton: bool(raw.showEditorButton, true),
+    showContextMenu: bool(raw.showContextMenu, true),
   };
 }
 
@@ -331,6 +336,8 @@ export const WEBVIEW_COMMANDS = new Set([
   'codeneat.setAsDefaultFormatter',
   'codeneat.refreshFormatters',
   'codeneat.installFormatter',
+  'codeneat.formatWithReview',
+  'codeneat.openUserGuide',
   'codeneat.openSettings',
   'codeneat.openSettingsJson',
   'codeneat.openWalkthrough',

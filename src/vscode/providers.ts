@@ -40,7 +40,7 @@ class CodeNeatFormattingProvider
   ): Promise<vscode.TextEdit[]> {
     const key = document.uri.toString();
     const settings = this.app.config.read(document.uri);
-    if (!settings.codeneatFormatOnType || this.busy.has(key)) {
+    if (!settings.enabled || !settings.codeneatFormatOnType || this.busy.has(key)) {
       return [];
     }
     const input = this.app.toInput(document);
@@ -68,6 +68,9 @@ class CodeNeatFormattingProvider
   }
 
   private async run(document: vscode.TextDocument, range: vscode.Range | undefined, token: vscode.CancellationToken): Promise<vscode.TextEdit[]> {
+    if (!this.app.config.read(document.uri).enabled) {
+      return [];
+    }
     const original = document.getText();
     const { result, error } = await this.app.formatDocument(document, range, token);
     if (error) {

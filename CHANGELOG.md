@@ -17,6 +17,10 @@ First release.
 - Respect for `.editorconfig` and formatter configuration files, with a visible source for every option.
 - Workspace Trust support: only bundled formatters run in Restricted Mode.
 - Custom external formatters that run only after you approve their exact command.
+- Quick ways to format: a button in the editor title bar, a keyboard shortcut, a status bar action menu and right-click menu entries, each with its own off switch, plus a master switch (`codeneat.enabled`).
+- A user guide (`docs/usage.md`, also available from **CodeNeat: Open User Guide**) and third-party licence notices.
+- Inline review: formatted code is shown in the editor with changed lines highlighted; Enter keeps the changes and Escape undoes them.
+- Live formatting preview that follows the file while you edit, with an Apply button, and an optional "Review Changes on Save" prompt that formats only when you approve.
 - One-click installation of missing formatters: CodeNeat shows the exact command and runs it in a terminal after you confirm.
 
 ### Known limitations

@@ -170,6 +170,9 @@ export class CodeNeatApp {
   }
 
   async formatDocument(document: vscode.TextDocument, range?: vscode.Range, token?: vscode.CancellationToken): Promise<FormatOutcome> {
+    if (!this.config.read(document.uri).enabled) {
+      return { error: new FormatterError('ignored', 'CodeNeat is switched off here. Turn it back on under CodeNeat Settings → Advanced (setting "codeneat.enabled").') };
+    }
     const input = this.toInput(document, range);
     if (!input) {
       return {

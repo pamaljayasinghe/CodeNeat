@@ -3,7 +3,7 @@
   "displayName": "CodeNeat",
   "description": "Format code in 41 languages with one extension. A visual settings dashboard, live before/after preview, formatting profiles and per-language styles, powered by the official formatting engines. 32 languages work with nothing else to install.",
   "version": "1.0.0",
-  "publisher": "pamaljayasinghe",
+  "publisher": "PamalJayasinghe",
   "license": "Apache-2.0",
   "icon": "assets/icon.png",
   "galleryBanner": {
@@ -59,7 +59,11 @@
       {
         "command": "codeneat.formatDocument",
         "title": "Format Document",
-        "category": "CodeNeat"
+        "category": "CodeNeat",
+        "icon": {
+          "light": "assets/format-light.svg",
+          "dark": "assets/format-dark.svg"
+        }
       },
       {
         "command": "codeneat.formatSelection",
@@ -73,7 +77,7 @@
       },
       {
         "command": "codeneat.previewFormatting",
-        "title": "Preview Formatting",
+        "title": "Preview Formatting (Live)",
         "category": "CodeNeat"
       },
       {
@@ -132,6 +136,37 @@
         "command": "codeneat.installFormatter",
         "title": "Install a Formatter",
         "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.applyPreview",
+        "title": "Apply Formatting",
+        "category": "CodeNeat",
+        "icon": "$(check)"
+      },
+      {
+        "command": "codeneat.formatWithReview",
+        "title": "Format Document with Review",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.keepInlineReview",
+        "title": "Keep Formatting Changes",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.discardInlineReview",
+        "title": "Undo Formatting Changes",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.showMenu",
+        "title": "Show Actions",
+        "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.openUserGuide",
+        "title": "Open User Guide",
+        "category": "CodeNeat"
       }
     ],
     "menus": {
@@ -139,12 +174,17 @@
         {
           "command": "codeneat.formatDocument",
           "group": "1_modification@90",
-          "when": "editorTextFocus && !editorReadonly"
+          "when": "editorTextFocus && !editorReadonly && config.codeneat.showContextMenu && config.codeneat.enabled"
         },
         {
           "command": "codeneat.formatSelection",
           "group": "1_modification@91",
-          "when": "editorTextFocus && editorHasSelection && !editorReadonly"
+          "when": "editorTextFocus && editorHasSelection && !editorReadonly && config.codeneat.showContextMenu && config.codeneat.enabled"
+        },
+        {
+          "command": "codeneat.formatWithReview",
+          "group": "1_modification@92",
+          "when": "editorTextFocus && !editorReadonly && config.codeneat.showContextMenu && config.codeneat.enabled"
         }
       ],
       "explorer/context": [
@@ -170,6 +210,30 @@
         {
           "command": "codeneat.formatSelection",
           "when": "editorHasSelection"
+        },
+        {
+          "command": "codeneat.applyPreview",
+          "when": "resourceScheme == codeneat-preview"
+        },
+        {
+          "command": "codeneat.keepInlineReview",
+          "when": "codeneat.inlineReviewActive"
+        },
+        {
+          "command": "codeneat.discardInlineReview",
+          "when": "codeneat.inlineReviewActive"
+        }
+      ],
+      "editor/title": [
+        {
+          "command": "codeneat.applyPreview",
+          "when": "resourceScheme == codeneat-preview",
+          "group": "navigation@1"
+        },
+        {
+          "command": "codeneat.formatDocument",
+          "when": "codeneat.activeFileSupported && config.codeneat.showEditorButton && !isInDiffEditor",
+          "group": "navigation@0"
         }
       ]
     },
@@ -432,9 +496,57 @@
           "default": true,
           "scope": "window",
           "markdownDescription": "Show the active language's formatter in the status bar."
+        },
+        "codeneat.previewOnSave": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "markdownDescription": "After you save a file that is not formatted, show how many lines CodeNeat would change and offer to review the differences before anything is modified. Use this instead of `editor.formatOnSave` when you want to approve every change."
+        },
+        "codeneat.inlineReview": {
+          "type": "boolean",
+          "default": false,
+          "scope": "resource",
+          "markdownDescription": "Show the result of **CodeNeat: Format Document** directly in the editor with changed lines highlighted, and wait for Enter (keep) or Escape (undo)."
+        },
+        "codeneat.enabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "markdownDescription": "Master switch. When off, CodeNeat formats nothing (not on command, save, paste or type). Set it in a workspace to switch CodeNeat off for one project."
+        },
+        "codeneat.showEditorButton": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "markdownDescription": "Show the CodeNeat Format button in the editor title bar for files CodeNeat can format."
+        },
+        "codeneat.showContextMenu": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "markdownDescription": "Show CodeNeat entries (Format Document, Format Selection, Format Document with Review) in the editor's right-click menu."
         }
       }
-    }
+    },
+    "keybindings": [
+      {
+        "command": "codeneat.keepInlineReview",
+        "key": "enter",
+        "when": "codeneat.inlineReviewActive && editorTextFocus && !suggestWidgetVisible && !inSnippetMode && !findWidgetVisible"
+      },
+      {
+        "command": "codeneat.discardInlineReview",
+        "key": "escape",
+        "when": "codeneat.inlineReviewActive && editorTextFocus && !suggestWidgetVisible && !findWidgetVisible"
+      },
+      {
+        "command": "codeneat.formatDocument",
+        "key": "ctrl+alt+shift+f",
+        "mac": "cmd+alt+shift+f",
+        "when": "editorTextFocus && !editorReadonly"
+      }
+    ]
   },
   "scripts": {
     "clean": "node scripts/clean.mjs",
@@ -449,11 +561,12 @@
     "test:integration": "vitest run tests/integration",
     "test:e2e": "npm run build:dev && node scripts/build.mjs --e2e && node tests/e2e/run.mjs",
     "verify:vsix": "node scripts/verify-vsix.mjs",
-    "package": "npm run build && vsce package --out codeneat.vsix && npm run verify:vsix",
+    "package": "npm run notices && npm run build && vsce package --out codeneat.vsix && npm run verify:vsix",
     "vscode:prepublish": "npm run build",
     "ci": "npm run typecheck && npm run lint && npm test && npm run package",
     "docs": "node scripts/gen-docs.mjs",
-    "test:e2e:vsix": "node scripts/build.mjs --e2e && node tests/e2e/run.mjs --vsix"
+    "test:e2e:vsix": "node scripts/build.mjs --e2e && node tests/e2e/run.mjs --vsix",
+    "notices": "node scripts/gen-notices.mjs"
   },
   "dependencies": {
     "@prettier/plugin-php": "^0.25.0",
@@ -465,7 +578,7 @@
     "@wasm-fmt/lua_fmt": "^0.3.3",
     "@wasm-fmt/ruff_fmt": "^0.15.20",
     "@wasm-fmt/shfmt": "^0.2.7",
-    "editorconfig": "^2.0.1",
+    "editorconfig": "^3.0.2",
     "prettier": "^3.6.0",
     "prettier-plugin-java": "^2.7.0",
     "prettier-plugin-latex": "^2.0.1",

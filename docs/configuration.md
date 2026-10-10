@@ -14,11 +14,16 @@ Everything on this page can be changed in the dashboard (**CodeNeat: Open Settin
 | `codeneat.toolPaths` | `{}` | Full paths to formatter executables, by formatter id. |
 | `codeneat.customFormatters` | `[]` | Additional external formatters. See below. |
 | `codeneat.formatOnType` | `true` | Whether CodeNeat answers VS Code's Format on Type requests. |
+| `codeneat.inlineReview` | `false` | Show the result of **Format Document** in the editor with changed lines highlighted, and wait for Enter (keep) or Escape (undo). |
+| `codeneat.previewOnSave` | `false` | After a save, report what CodeNeat would change and offer to review it first. Nothing is modified unless you approve. |
 | `codeneat.timeoutMs` | `10000` | Time limit for one formatting run. |
 | `codeneat.maxFileSizeKB` | `2048` | Larger files are not formatted. |
 | `codeneat.workspace.exclude` | `[]` | Extra patterns (gitignore syntax) skipped by Format Workspace. |
 | `codeneat.workspace.useGitignore` | `true` | Skip files ignored by Git during Format Workspace. |
 | `codeneat.showStatusBar` | `true` | Show the active formatter in the status bar. |
+| `codeneat.enabled` | `true` | Master switch. When off, CodeNeat formats nothing. Can be set per workspace. |
+| `codeneat.showEditorButton` | `true` | Show the Format button in the editor title bar. |
+| `codeneat.showContextMenu` | `true` | Show CodeNeat entries in the editor's right-click menu. |
 
 Example:
 
@@ -58,7 +63,7 @@ These are VS Code features that call the *default formatter*:
 
 ```json
 {
-  "editor.defaultFormatter": "pamaljayasinghe.codeneat",
+  "editor.defaultFormatter": "PamalJayasinghe.codeneat",
   "editor.formatOnSave": true
 }
 ```

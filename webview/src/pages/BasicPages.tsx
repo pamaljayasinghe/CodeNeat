@@ -6,7 +6,7 @@ import type { PageContext } from '../context';
 import { host } from '../host';
 import { profilesOf, setDefaultProfile } from '../state';
 
-const EXTENSION_ID = 'pamaljayasinghe.codeneat';
+const EXTENSION_ID = 'PamalJayasinghe.codeneat';
 
 function PageHeader({ title, summary }: { title: string; summary: string }) {
   return (
@@ -123,6 +123,7 @@ export function OverviewPage({ context }: { context: PageContext }) {
           </Button>
           <Button onClick={() => context.navigate('auto')}>Set Up Format on Save</Button>
           <Button onClick={() => host.command('codeneat.openWalkthrough')}>Open the Walkthrough</Button>
+          <Button onClick={() => host.command('codeneat.openUserGuide')}>Open the User Guide</Button>
         </div>
       </Card>
     </div>
@@ -137,7 +138,7 @@ export function AutoPage({ context }: { context: PageContext }) {
   const set = <K extends keyof EditorSettings>(key: K, value: EditorSettings[K]): void =>
     context.update((current) => ({ ...current, editor: { ...current.editor, [key]: value } }));
   const languageDefault = view ? state.defaultFormatter.byLanguage[view.language.id] : state.defaultFormatter.global;
-  const isDefault = languageDefault === EXTENSION_ID;
+  const isDefault = languageDefault?.toLowerCase() === EXTENSION_ID.toLowerCase();
   const rangeSupported = !!view?.formatter?.rangeLanguages.includes(view.language.id);
   const typeSupported = view?.formatter?.kind === 'bundled';
 
@@ -225,6 +226,44 @@ export function AutoPage({ context }: { context: PageContext }) {
             disabled={!editor.formatOnType}
             onChange={(value) => context.update((current) => ({ ...current, codeneatFormatOnType: value }))}
           />
+        </SettingRow>
+      </Card>
+
+      <Card title="See changes before they happen">
+        <SettingRow
+          label="Review Changes in the Editor"
+          description="When you run CodeNeat: Format Document, the formatted code appears in your file with every changed line highlighted in green. Hover a line to see what it replaced. Press Enter to keep the changes or Escape to put the original back."
+        >
+          <Toggle label="Review Changes in the Editor" checked={draft.inlineReview} onChange={(value) => context.update((current) => ({ ...current, inlineReview: value }))} />
+        </SettingRow>
+        <SettingRow label="Try It Now" description="Formats the current file once with the highlighted review, whatever the switch above says.">
+          <Button disabled={!state.activeEditor?.languageId} onClick={() => host.command('codeneat.formatWithReview')}>
+            Format with Review
+          </Button>
+        </SettingRow>
+        <SettingRow
+          label="Review Changes on Save"
+          description="When you save a file that is not formatted, CodeNeat tells you how many lines it would change and lets you look at the differences first. Nothing is changed unless you choose “Format and Save”. Use this instead of Format on Save if you want to approve every change."
+        >
+          <Toggle
+            label="Review Changes on Save"
+            checked={draft.previewOnSave}
+            onChange={(value) => context.update((current) => ({ ...current, previewOnSave: value }))}
+          />
+        </SettingRow>
+        {draft.previewOnSave && editor.formatOnSave && (
+          <p className="option-reason">
+            Format on Save is also switched on, so files are already formatted when they are saved and there will be nothing to review. Switch Format on
+            Save off to be asked first.
+          </p>
+        )}
+        <SettingRow
+          label="Live Preview While Editing"
+          description="Opens the current file next to its formatted version. The comparison updates as you type, and the Apply button in its title bar formats the file."
+        >
+          <Button disabled={!state.activeEditor?.languageId} onClick={() => host.command('codeneat.previewFormatting')}>
+            Open Live Preview
+          </Button>
         </SettingRow>
       </Card>
 
@@ -465,9 +504,29 @@ export function AdvancedPage({ context }: { context: PageContext }) {
             onChange={(value) => set('maxFileSizeKB', value)}
           />
         </SettingRow>
-        <SettingRow label="Show Formatter in the Status Bar" description="Show which formatter handles the current file at the bottom of the window.">
-          <Toggle label="Show Formatter in the Status Bar" checked={draft.showStatusBar} onChange={(value) => set('showStatusBar', value)} />
+      </Card>
+
+      <Card title="Buttons, menus and on/off">
+        <p className="muted">Everything CodeNeat adds to the VS Code window can be switched off here.</p>
+        <SettingRow
+          label="CodeNeat Formatting"
+          description="The master switch. When it is off, CodeNeat formats nothing: not on command, not on save, paste or type. Save it to the Workspace to switch CodeNeat off for one project only."
+        >
+          <Toggle label="CodeNeat Formatting" checked={draft.enabled} onChange={(value) => set('enabled', value)} />
         </SettingRow>
+        <SettingRow label="Format Button in the Editor Title Bar" description="The CodeNeat button at the top right of every file CodeNeat can format. One click formats the file.">
+          <Toggle label="Format Button in the Editor Title Bar" checked={draft.showEditorButton} onChange={(value) => set('showEditorButton', value)} />
+        </SettingRow>
+        <SettingRow label="CodeNeat in the Right-Click Menu" description="Format Document, Format Selection and Format Document with Review in the editor’s context menu.">
+          <Toggle label="CodeNeat in the Right-Click Menu" checked={draft.showContextMenu} onChange={(value) => set('showContextMenu', value)} />
+        </SettingRow>
+        <SettingRow label="Formatter in the Status Bar" description="Shows which formatter handles the current file at the bottom of the window. Click it for a menu of CodeNeat actions.">
+          <Toggle label="Formatter in the Status Bar" checked={draft.showStatusBar} onChange={(value) => set('showStatusBar', value)} />
+        </SettingRow>
+        <p className="muted">
+          Keyboard shortcut: <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> (<kbd>⌘</kbd>+<kbd>⌥</kbd>+<kbd>⇧</kbd>+<kbd>F</kbd> on macOS) formats the
+          current file. Change or remove it under File → Preferences → Keyboard Shortcuts by searching for “CodeNeat”.
+        </p>
       </Card>
 
       <Card title="Back up and share your settings">
@@ -575,10 +634,36 @@ export function HelpPage({ context }: { context: PageContext }) {
           <Button onClick={() => host.command('codeneat.showLog')}>Show Log</Button>
           <Button onClick={() => host.post({ type: 'refreshFormatters' })}>Re-detect Formatters</Button>
           <Button onClick={() => host.command('codeneat.openWalkthrough')}>Open the Walkthrough</Button>
+          <Button onClick={() => host.command('codeneat.openUserGuide')}>Open the User Guide</Button>
         </div>
         <p className="muted">
           The diagnostics report lists your formatters, settings and where each option for the current file comes from. It never contains your code.
         </p>
+      </Card>
+      <Card title="Five ways to format a file">
+        <ol className="steps">
+          <li>
+            <strong>The CodeNeat button</strong>
+            <span>Click the CodeNeat button at the top right of the editor.</span>
+          </li>
+          <li>
+            <strong>The keyboard</strong>
+            <span>Press Ctrl+Alt+Shift+F (⌘+⌥+⇧+F on macOS).</span>
+          </li>
+          <li>
+            <strong>The right-click menu</strong>
+            <span>Right-click in the file and choose CodeNeat: Format Document.</span>
+          </li>
+          <li>
+            <strong>The status bar</strong>
+            <span>Click “CodeNeat” at the bottom right for a menu of actions.</span>
+          </li>
+          <li>
+            <strong>Automatically</strong>
+            <span>Switch on Format on Save on the Auto Formatting page.</span>
+          </li>
+        </ol>
+        <p className="muted">Each of these can be switched off on the Advanced page.</p>
       </Card>
       <Card title="Common questions">
         {FAQ.map((entry) => (

@@ -48,7 +48,7 @@ export async function buildDiagnosticsReport(app: CodeNeatApp): Promise<string> 
     lines.push(
       row([
         'VS Code default formatter',
-        defaultFormatter ? (defaultFormatter === EXTENSION_ID ? 'CodeNeat' : defaultFormatter) : 'not set (VS Code asks or uses the only formatter available)',
+        defaultFormatter ? (defaultFormatter.toLowerCase() === EXTENSION_ID.toLowerCase() ? 'CodeNeat' : defaultFormatter) : 'not set (VS Code asks or uses the only formatter available)',
       ]),
     );
     if (input) {
