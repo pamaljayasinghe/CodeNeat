@@ -32,7 +32,6 @@ export function OverviewPage({ context }: { context: PageContext }) {
   const { state, view } = context;
   const editor = state.activeEditor;
   const formatters = state.formatters;
-  const available = formatters.filter((formatter) => state.statuses[formatter.id]?.available).length;
   const ready = state.languages.filter((language) =>
     formatters.some((formatter) => formatter.languages.includes(language.id) && state.statuses[formatter.id]?.available),
   ).length;
@@ -92,10 +91,8 @@ export function OverviewPage({ context }: { context: PageContext }) {
             <dd>
               {ready} of {state.languages.length}
             </dd>
-            <dt>Formatters available</dt>
-            <dd>
-              {available} of {formatters.length}
-            </dd>
+            <dt>Built-in formatters</dt>
+            <dd>{formatters.filter((formatter) => formatter.kind === 'bundled' && state.statuses[formatter.id]?.available).length} (nothing to install)</dd>
             <dt>Default profile</dt>
             <dd>{profilesOf(state, context.draft).find((profile) => profile.id === (context.draft.workspace.defaultProfile ?? context.draft.user.defaultProfile ?? 'standard'))?.name ?? 'Standard'}</dd>
             <dt>Format on Save</dt>
@@ -514,8 +511,23 @@ export function AdvancedPage({ context }: { context: PageContext }) {
         >
           <Toggle label="CodeNeat Formatting" checked={draft.enabled} onChange={(value) => set('enabled', value)} />
         </SettingRow>
-        <SettingRow label="Format Button in the Editor Title Bar" description="The CodeNeat button at the top right of every file CodeNeat can format. One click formats the file.">
+        <SettingRow label="Format Button in the Editor Title Bar" description="The CodeNeat button at the top right of every file CodeNeat can format.">
           <Toggle label="Format Button in the Editor Title Bar" checked={draft.showEditorButton} onChange={(value) => set('showEditorButton', value)} />
+        </SettingRow>
+        <SettingRow
+          label="When I Click the Format Button"
+          description="“Show the changes first” formats the file, highlights every change in green and asks whether to keep them. “Format straight away” applies the formatting without asking."
+        >
+          <Select
+            label="When I Click the Format Button"
+            value={draft.editorButtonAction}
+            disabled={!draft.showEditorButton}
+            choices={[
+              { value: 'review', label: 'Show the changes first, then ask' },
+              { value: 'format', label: 'Format straight away' },
+            ]}
+            onChange={(value) => set('editorButtonAction', value === 'format' ? 'format' : 'review')}
+          />
         </SettingRow>
         <SettingRow label="CodeNeat in the Right-Click Menu" description="Format Document, Format Selection and Format Document with Review in the editor’s context menu.">
           <Toggle label="CodeNeat in the Right-Click Menu" checked={draft.showContextMenu} onChange={(value) => set('showContextMenu', value)} />

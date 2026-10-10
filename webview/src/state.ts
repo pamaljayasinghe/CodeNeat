@@ -77,6 +77,7 @@ export function draftFromState(state: DashboardState): SettingsDraft {
     showStatusBar: settings.showStatusBar,
     enabled: settings.enabled,
     showEditorButton: settings.showEditorButton,
+    editorButtonAction: settings.editorButtonAction,
     showContextMenu: settings.showContextMenu,
   });
 }

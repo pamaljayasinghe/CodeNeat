@@ -673,6 +673,14 @@ kbd {
   align-items: center;
   gap: 10px;
 }
+.formatter-section > h3 {
+  margin-top: 6px;
+  font-size: 1.15em;
+  font-weight: 600;
+}
+.formatter-section > p {
+  margin: 2px 0 10px;
+}
 .formatter-list,
 .profile-list {
   display: grid;

@@ -16,7 +16,7 @@ CodeNeat is a multi-language code formatter for Visual Studio Code. It formats 4
 ## Getting started
 
 1. Open a supported file.
-2. Click the **CodeNeat button** at the top right of the editor to format it. One Undo restores the file.
+2. Click the **CodeNeat button** at the top right of the editor. The formatted code appears with every change highlighted in green; choose **Keep Changes** or **Undo Changes**.
 3. To choose your style, click the **CodeNeat** icon in the Activity Bar (or run **CodeNeat: Open Settings**), change a preference, watch the live preview, and press **Apply**.
 4. To format on every save, open **Auto Formatting**, make CodeNeat the default formatter, and switch on **Format on Save**.
 
@@ -24,7 +24,7 @@ CodeNeat is a multi-language code formatter for Visual Studio Code. It formats 4
 
 | Way              | How                                                                                         |
 | ---------------- | ------------------------------------------------------------------------------------------- |
-| Editor button    | The CodeNeat button at the top right of the editor.                                         |
+| Editor button | The CodeNeat button at the top right of the editor. It shows the changes highlighted in the file and asks before keeping them. |
 | Keyboard         | `Ctrl+Alt+Shift+F` (Windows, Linux) or `⌘+⌥+⇧+F` (macOS).                                   |
 | Right-click menu | **CodeNeat: Format Document**, **Format Selection** or **Format Document with Review**.     |
 | Status bar       | Click **CodeNeat** at the bottom right for a menu of actions.                               |

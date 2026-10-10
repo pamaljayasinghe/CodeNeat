@@ -59,8 +59,7 @@
       {
         "command": "codeneat.formatDocument",
         "title": "Format Document",
-        "category": "CodeNeat",
-        "icon": "assets/button.png"
+        "category": "CodeNeat"
       },
       {
         "command": "codeneat.formatSelection",
@@ -164,6 +163,12 @@
         "command": "codeneat.openUserGuide",
         "title": "Open User Guide",
         "category": "CodeNeat"
+      },
+      {
+        "command": "codeneat.editorButton",
+        "title": "Format (CodeNeat)",
+        "category": "CodeNeat",
+        "icon": "assets/button.png"
       }
     ],
     "menus": {
@@ -219,6 +224,10 @@
         {
           "command": "codeneat.discardInlineReview",
           "when": "codeneat.inlineReviewActive"
+        },
+        {
+          "command": "codeneat.editorButton",
+          "when": "false"
         }
       ],
       "editor/title": [
@@ -228,7 +237,7 @@
           "group": "navigation@1"
         },
         {
-          "command": "codeneat.formatDocument",
+          "command": "codeneat.editorButton",
           "when": "codeneat.activeFileSupported && config.codeneat.showEditorButton && !isInDiffEditor",
           "group": "navigation@0"
         }
@@ -523,6 +532,20 @@
           "default": true,
           "scope": "window",
           "markdownDescription": "Show CodeNeat entries (Format Document, Format Selection, Format Document with Review) in the editor's right-click menu."
+        },
+        "codeneat.editorButtonAction": {
+          "type": "string",
+          "enum": [
+            "review",
+            "format"
+          ],
+          "enumDescriptions": [
+            "Format the file, highlight every change and ask whether to keep them.",
+            "Format the file straight away."
+          ],
+          "default": "review",
+          "scope": "resource",
+          "markdownDescription": "What the CodeNeat button in the editor title bar does."
         }
       }
     },

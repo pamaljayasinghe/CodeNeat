@@ -8,7 +8,7 @@ Open a file in a language CodeNeat supports, then use any of these:
 
 | Way | How |
 | --- | --- |
-| Editor button | Click the CodeNeat button at the top right of the editor. |
+| Editor button | Click the CodeNeat button at the top right of the editor. It formats the file, highlights every change in green and asks **Keep Changes** or **Undo Changes**. |
 | Keyboard | `Ctrl+Alt+Shift+F` on Windows and Linux, `⌘+⌥+⇧+F` on macOS. |
 | Right-click menu | Right-click in the file → **CodeNeat: Format Document**. |
 | Status bar | Click **CodeNeat** at the bottom right, then pick an action from the menu. |
@@ -105,6 +105,7 @@ Everything CodeNeat adds can be switched off in **CodeNeat Settings → Advanced
 | --- | --- |
 | All CodeNeat formatting (everywhere, or for one workspace) | `codeneat.enabled` |
 | The button in the editor title bar | `codeneat.showEditorButton` |
+| The question after clicking the button (format straight away instead) | `codeneat.editorButtonAction` set to `format` |
 | CodeNeat entries in the right-click menu | `codeneat.showContextMenu` |
 | The status bar item | `codeneat.showStatusBar` |
 | Review in the editor | `codeneat.inlineReview` (off by default) |
