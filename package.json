@@ -465,7 +465,7 @@
     "@wasm-fmt/lua_fmt": "^0.3.3",
     "@wasm-fmt/ruff_fmt": "^0.15.20",
     "@wasm-fmt/shfmt": "^0.2.7",
-    "editorconfig": "^2.0.1",
+    "editorconfig": "^3.0.2",
     "prettier": "^3.6.0",
     "prettier-plugin-java": "^2.7.0",
     "prettier-plugin-latex": "^2.0.1",
