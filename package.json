@@ -582,7 +582,7 @@
     "prettier": "^3.6.0",
     "prettier-plugin-java": "^2.7.0",
     "prettier-plugin-latex": "^2.0.1",
-    "prettier-plugin-toml": "^2.0.6",
+    "prettier-plugin-toml": "^3.0.2",
     "sql-formatter": "^15.6.0"
   },
   "devDependencies": {
