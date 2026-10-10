@@ -83,7 +83,7 @@ test('all CodeNeat commands are registered', async () => {
   for (const command of [
     'formatDocument', 'formatSelection', 'formatWorkspace', 'previewFormatting', 'checkFormatting', 'openSettings',
     'selectFormatter', 'selectProfile', 'manageFormatters', 'openDiagnostics', 'importSettings', 'exportSettings',
-    'setAsDefaultFormatter', 'refreshFormatters',
+    'setAsDefaultFormatter', 'refreshFormatters', 'installFormatter', 'applyPreview', 'formatWithReview', 'keepInlineReview', 'discardInlineReview', 'showMenu', 'openUserGuide',
   ]) {
     assert.ok(commands.has(`codeneat.${command}`), `codeneat.${command}`);
   }
@@ -108,10 +108,14 @@ test('CodeNeat: Format Document changes the file and one Undo restores it', asyn
   const formatted = editor.document.getText();
   assert.notEqual(formatted, original);
   assert.match(formatted, /^import \{ readFile, writeFile \} from "node:fs\/promises";/);
+  // Undo is a keyboard command: it acts on whatever has the focus, so make sure that is this editor.
+  await vscode.window.showTextDocument(editor.document, { viewColumn: editor.viewColumn, preserveFocus: false });
+  await vscode.commands.executeCommand('workbench.action.focusActiveEditorGroup');
   await vscode.commands.executeCommand('undo');
+  await waitFor(() => editor.document.getText() !== formatted, 'undo to take effect', 3000);
   assert.equal(editor.document.getText(), original, 'a single undo restores the original');
   await vscode.commands.executeCommand('redo');
-  assert.equal(editor.document.getText(), formatted, 'redo re-applies the formatting');
+  await waitFor(() => editor.document.getText() === formatted, 'redo to re-apply the formatting', 3000);
 });
 
 test('every bundled language formats through VS Code, including languages VS Code has no grammar for', async () => {
@@ -260,6 +264,109 @@ test('Preview Formatting opens a diff without changing the file', async () => {
   await vscode.commands.executeCommand('workbench.action.closeActiveEditor');
 });
 
+test('the live preview follows the file while it is edited, and Apply Formatting formats it', async () => {
+  const document = await vscode.workspace.openTextDocument({ language: 'javascript', content: 'const   a=1\n' });
+  const editor = await vscode.window.showTextDocument(document, { preview: false });
+  await vscode.commands.executeCommand('codeneat.previewFormatting');
+  const preview = (): string => vscode.workspace.textDocuments.find((candidate) => candidate.uri.scheme === 'codeneat-preview')?.getText() ?? '';
+  await waitFor(() => preview() === 'const a = 1;\n', 'the first preview');
+  // Typing in the file must update the preview without running any command.
+  const edit = new vscode.WorkspaceEdit();
+  edit.insert(document.uri, new vscode.Position(1, 0), 'const   b=2\n');
+  await vscode.workspace.applyEdit(edit);
+  await waitFor(() => preview() === 'const a = 1;\nconst b = 2;\n', 'the preview to follow the edit');
+  assert.equal(document.getText(), 'const   a=1\nconst   b=2\n', 'previewing never changes the file');
+  // Code that cannot be parsed keeps the last good preview instead of clearing it.
+  const broken = new vscode.WorkspaceEdit();
+  broken.insert(document.uri, new vscode.Position(2, 0), 'const = ;\n');
+  await vscode.workspace.applyEdit(broken);
+  await sleep(1200);
+  assert.equal(preview(), 'const a = 1;\nconst b = 2;\n');
+  // (The diff editor has the focus, so the broken line is removed with an edit, not with Undo.)
+  const repair = new vscode.WorkspaceEdit();
+  repair.delete(document.uri, new vscode.Range(2, 0, 3, 0));
+  await vscode.workspace.applyEdit(repair);
+  // The Apply button of the preview formats the original file.
+  await vscode.commands.executeCommand('codeneat.applyPreview');
+  await waitFor(() => document.getText() === 'const a = 1;\nconst b = 2;\n', 'the formatting to be applied');
+  void editor;
+});
+
+test('inline review shows the formatted code for approval: Escape restores, Enter keeps', async () => {
+  const original = 'const   a=1\nfunction f(){return a}\n';
+  const formatted = 'const a = 1;\nfunction f() {\n  return a;\n}\n';
+  const document = await vscode.workspace.openTextDocument({ language: 'javascript', content: original });
+  await vscode.window.showTextDocument(document, { preview: false });
+
+  assert.equal(await vscode.commands.executeCommand('codeneat.formatWithReview'), true);
+  assert.equal(document.getText(), formatted, 'the formatted code is shown in the editor');
+  assert.ok(api.isInlineReviewActive(), 'a review is waiting for Keep or Undo');
+  const lenses = await vscode.commands.executeCommand<vscode.CodeLens[]>('vscode.executeCodeLensProvider', document.uri, 10);
+  const titles = lenses.map((lens) => lens.command?.title ?? '');
+  assert.ok(titles.some((title) => title.includes('Keep (Enter)')) && titles.some((title) => title.includes('Undo (Esc)')), 'Keep and Undo actions are offered');
+
+  await vscode.commands.executeCommand('codeneat.discardInlineReview');
+  assert.equal(document.getText(), original, 'Undo puts the original text back');
+  assert.equal(api.isInlineReviewActive(), false);
+
+  await vscode.commands.executeCommand('codeneat.formatWithReview');
+  await vscode.commands.executeCommand('codeneat.keepInlineReview');
+  assert.equal(document.getText(), formatted, 'Keep leaves the formatted text');
+  assert.equal(api.isInlineReviewActive(), false);
+
+  // With the setting on, the normal Format Document command uses the review too.
+  const second = await vscode.workspace.openTextDocument({ language: 'javascript', content: original });
+  await vscode.window.showTextDocument(second, { preview: false });
+  await setConfig('codeneat', 'inlineReview', true);
+  try {
+    await vscode.commands.executeCommand('codeneat.formatDocument');
+    assert.ok(api.isInlineReviewActive());
+    // Typing ends the review and keeps the formatting.
+    const typing = new vscode.WorkspaceEdit();
+    typing.insert(second.uri, new vscode.Position(0, 0), '// note\n');
+    await vscode.workspace.applyEdit(typing);
+    assert.equal(api.isInlineReviewActive(), false);
+    assert.equal(second.getText(), `// note\n${formatted}`);
+  } finally {
+    await setConfig('codeneat', 'inlineReview', undefined);
+  }
+});
+
+test('Review Changes on Save reports what would change and leaves the saved file alone', async () => {
+  const target = file('review-test.ts');
+  fs.writeFileSync(target.fsPath, 'const   answer=42\n');
+  await setConfig('codeneat', 'previewOnSave', true);
+  try {
+    const editor = await open('review-test.ts');
+    await editor.edit((builder) => builder.insert(new vscode.Position(1, 0), 'const   other=1\n'));
+    await vscode.commands.executeCommand('workbench.action.files.save');
+    await waitFor(() => api.lastSaveReview()?.file === 'review-test.ts', 'the review prompt');
+    assert.equal(api.lastSaveReview()?.changedLines, 2);
+    assert.equal(fs.readFileSync(target.fsPath, 'utf8'), 'const   answer=42\nconst   other=1\n', 'the file is saved exactly as typed');
+  } finally {
+    await setConfig('codeneat', 'previewOnSave', undefined);
+  }
+});
+
+test('the master switch turns all CodeNeat formatting off, and back on', async () => {
+  const document = await vscode.workspace.openTextDocument({ language: 'java', content: 'class A{}\n' });
+  const editor = await vscode.window.showTextDocument(document, { preview: false });
+  await setConfig('codeneat', 'enabled', false);
+  try {
+    assert.deepEqual(await providerEdits(document.uri), [], 'the provider returns nothing while switched off');
+    await vscode.commands.executeCommand('codeneat.formatDocument');
+    assert.equal(editor.document.getText(), 'class A{}\n', 'the command changes nothing while switched off');
+  } finally {
+    await setConfig('codeneat', 'enabled', undefined);
+  }
+  assert.equal(await applyEdits(document, await providerEdits(document.uri)), 'class A {}\n');
+});
+
+test('the user guide opens', async () => {
+  await vscode.commands.executeCommand('codeneat.openUserGuide');
+  await waitFor(() => vscode.window.tabGroups.all.some((group) => group.tabs.some((tab) => tab.label.includes('usage.md'))), 'the user guide tab');
+});
+
 test('the settings dashboard opens and its UI loads', async () => {
   await open('typescript/input.ts');
   await vscode.commands.executeCommand('codeneat.openSettings');
@@ -309,6 +416,8 @@ test('Go is formatted by the bundled gofmt and Python by the bundled Ruff', asyn
 
 export async function run(): Promise<void> {
   assert.ok(workspaceDir, 'CODENEAT_E2E_WORKSPACE is set');
+  // Keep the keyboard focus in the editor area (see run.mjs).
+  await vscode.commands.executeCommand('workbench.action.closeAuxiliaryBar').then(undefined, () => undefined);
   const results: { name: string; ok: boolean; error?: string; ms: number }[] = [];
   for (const { name, body } of tests) {
     const started = Date.now();

@@ -2,7 +2,7 @@
 //   node tests/e2e/run.mjs          → tests the extension from this folder (after `npm run build:dev`)
 //   node tests/e2e/run.mjs --vsix   → installs codeneat.vsix into a throw-away profile and tests that
 import { spawnSync } from 'node:child_process';
-import { cpSync, existsSync, mkdtempSync, readdirSync, readFileSync, rmSync } from 'node:fs';
+import { cpSync, existsSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -21,6 +21,15 @@ const useVsix = process.argv.includes('--vsix');
 const scratch = mkdtempSync(join(tmpdir(), 'codeneat-e2e-'));
 const workspace = join(scratch, 'workspace');
 cpSync(join(root, 'tests', 'fixtures'), workspace, { recursive: true });
+
+// A fresh profile opens the Chat view, whose input box takes the keyboard focus at an unpredictable
+// moment. Keyboard commands such as Undo would then go to that box instead of the editor under test.
+const userSettings = join(scratch, 'profile', 'User');
+mkdirSync(userSettings, { recursive: true });
+writeFileSync(
+  join(userSettings, 'settings.json'),
+  JSON.stringify({ 'workbench.secondarySideBar.defaultVisibility': 'hidden', 'chat.disableAIFeatures': true, 'workbench.startupEditor': 'none', 'telemetry.telemetryLevel': 'off' }, null, 2),
+);
 
 // Newer macOS builds name the binary "Code"; older ones (and the test downloader) expect "Electron".
 function existing(candidate) {

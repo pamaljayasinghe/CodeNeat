@@ -112,12 +112,17 @@ export class ConfigurationManager {
       profiles: this.profiles(),
       respectProjectConfig: config.get<boolean>('respectProjectConfig', true),
       codeneatFormatOnType: config.get<boolean>('formatOnType', true),
+      previewOnSave: config.get<boolean>('previewOnSave', false),
+      inlineReview: config.get<boolean>('inlineReview', false),
       timeoutMs: clamp(config.get<number>('timeoutMs', 10000), 500, 120000),
       maxFileSizeKB: clamp(config.get<number>('maxFileSizeKB', 2048), 16, 102400),
       workspaceExclude: sanitizeStringList(config.get('workspace.exclude')),
       useGitignore: config.get<boolean>('workspace.useGitignore', true),
       toolPaths: sanitizeToolPaths(config.get('toolPaths')),
       showStatusBar: config.get<boolean>('showStatusBar', true),
+      enabled: config.get<boolean>('enabled', true),
+      showEditorButton: config.get<boolean>('showEditorButton', true),
+      showContextMenu: config.get<boolean>('showContextMenu', true),
     };
   }
 
@@ -240,11 +245,16 @@ export class ConfigurationManager {
 
     await this.writeScalar('respectProjectConfig', draft.respectProjectConfig);
     await this.writeScalar('formatOnType', draft.codeneatFormatOnType);
+    await this.writeScalar('previewOnSave', draft.previewOnSave);
+    await this.writeScalar('inlineReview', draft.inlineReview);
     await this.writeScalar('timeoutMs', draft.timeoutMs);
     await this.writeScalar('maxFileSizeKB', draft.maxFileSizeKB);
     await this.writeScalar('workspace.exclude', draft.workspaceExclude);
     await this.writeScalar('workspace.useGitignore', draft.useGitignore);
     await this.writeScalar('showStatusBar', draft.showStatusBar);
+    await this.writeScalar('enabled', draft.enabled);
+    await this.writeScalar('showEditorButton', draft.showEditorButton);
+    await this.writeScalar('showContextMenu', draft.showContextMenu);
     if (vscode.workspace.isTrusted) {
       await this.writeScalar('toolPaths', draft.toolPaths);
     }

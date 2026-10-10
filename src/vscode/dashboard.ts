@@ -45,6 +45,7 @@ export class DashboardPanel implements vscode.Disposable {
   private pendingNavigation: { page: string; languageId?: string } | undefined;
   private previewCancel: vscode.CancellationTokenSource | undefined;
   private refreshTimer: NodeJS.Timeout | undefined;
+  private editTimer: NodeJS.Timeout | undefined;
   private readonly disposables: vscode.Disposable[] = [];
 
   constructor(private readonly app: CodeNeatApp) {
@@ -62,6 +63,13 @@ export class DashboardPanel implements vscode.Disposable {
         }
       }),
       app.onDidChangeFormatters(() => this.scheduleRefresh()),
+      // Keep the dashboard's "Current file" preview in step with the file while it is being edited.
+      vscode.workspace.onDidChangeTextDocument((event) => {
+        if (this.panel && event.document === this.app.lastEditor?.document && event.contentChanges.length > 0) {
+          clearTimeout(this.editTimer);
+          this.editTimer = setTimeout(() => void this.postActiveEditor(), 500);
+        }
+      }),
     );
   }
 
@@ -179,6 +187,7 @@ export class DashboardPanel implements vscode.Disposable {
       vscodeLanguageId: document.languageId,
       hasSelection: !editor.selection.isEmpty,
       lineCount: document.lineCount,
+      revision: document.version,
       tooLarge: Buffer.byteLength(document.getText(), 'utf8') / 1024 > settings.maxFileSizeKB,
     };
   }
@@ -340,7 +349,7 @@ export class DashboardPanel implements vscode.Disposable {
         return;
       default:
         // Formatting commands act on the last real editor, so bring it to the front first.
-        if (this.app.lastEditor && ['codeneat.formatDocument', 'codeneat.formatSelection', 'codeneat.previewFormatting', 'codeneat.checkFormatting', 'codeneat.selectFormatter'].includes(command)) {
+        if (this.app.lastEditor && ['codeneat.formatDocument', 'codeneat.formatWithReview', 'codeneat.formatSelection', 'codeneat.previewFormatting', 'codeneat.checkFormatting', 'codeneat.selectFormatter'].includes(command)) {
           await vscode.window.showTextDocument(this.app.lastEditor.document, { viewColumn: this.app.lastEditor.viewColumn, preserveFocus: false });
         }
         await vscode.commands.executeCommand(command);
@@ -496,6 +505,7 @@ export class DashboardPanel implements vscode.Disposable {
 
   dispose(): void {
     clearTimeout(this.refreshTimer);
+    clearTimeout(this.editTimer);
     this.previewCancel?.dispose();
     this.panel?.dispose();
     vscode.Disposable.from(...this.disposables).dispose();

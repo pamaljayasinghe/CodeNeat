@@ -24,12 +24,17 @@ function makeState(available: string[] = ['prettier', 'prettier-java']): Dashboa
       profiles: {},
       respectProjectConfig: true,
       codeneatFormatOnType: true,
+      previewOnSave: false,
+      inlineReview: false,
       timeoutMs: 10000,
       maxFileSizeKB: 2048,
       workspaceExclude: [],
       useGitignore: true,
       toolPaths: {},
       showStatusBar: true,
+      enabled: true,
+      showEditorButton: true,
+      showContextMenu: true,
     },
     editor: DEFAULT_EDITOR_SETTINGS,
     defaultFormatter: { global: null, byLanguage: {} },
@@ -93,7 +98,7 @@ describe('dashboard draft editing', () => {
     const withFile: DashboardState = {
       ...state,
       project,
-      activeEditor: { uri: 'file:///a.ts', fileName: 'a.ts', languageId: 'typescript', vscodeLanguageId: 'typescript', hasSelection: false, lineCount: 1, tooLarge: false },
+      activeEditor: { uri: 'file:///a.ts', fileName: 'a.ts', languageId: 'typescript', vscodeLanguageId: 'typescript', hasSelection: false, lineCount: 1, tooLarge: false, revision: 1 },
     };
     expect(viewLanguage(withFile, draft, 'typescript')?.resolved?.options.indentSize).toMatchObject({ value: 8, source: 'editorconfig', locked: true });
     expect(viewLanguage(withFile, draft, 'css')?.resolved?.options.indentSize.value).toBe(2);

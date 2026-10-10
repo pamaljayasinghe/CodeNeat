@@ -67,12 +67,17 @@ export function draftFromState(state: DashboardState): SettingsDraft {
     editor: state.editor,
     respectProjectConfig: settings.respectProjectConfig,
     codeneatFormatOnType: settings.codeneatFormatOnType,
+    previewOnSave: settings.previewOnSave,
+    inlineReview: settings.inlineReview,
     timeoutMs: settings.timeoutMs,
     maxFileSizeKB: settings.maxFileSizeKB,
     workspaceExclude: settings.workspaceExclude,
     useGitignore: settings.useGitignore,
     toolPaths: settings.toolPaths,
     showStatusBar: settings.showStatusBar,
+    enabled: settings.enabled,
+    showEditorButton: settings.showEditorButton,
+    showContextMenu: settings.showContextMenu,
   });
 }
 

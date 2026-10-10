@@ -6,36 +6,11 @@ import type { CodeNeatApp } from './app';
 import { EXTENSION_ID } from './configuration';
 import { openDiagnostics } from './diagnostics';
 import { installFormatter } from './install';
+import type { InlineReview } from './inlineReview';
+import { changedLineCount, type LivePreview, PREVIEW_SCHEME } from './livePreview';
 import { formatWorkspace } from './workspaceFormat';
 
-export const PREVIEW_SCHEME = 'codeneat-preview';
-
-/** Serves formatted text for the diff editor opened by "Preview Formatting". */
-export class PreviewContentProvider implements vscode.TextDocumentContentProvider {
-  private readonly contents = new Map<string, string>();
-  private readonly emitter = new vscode.EventEmitter<vscode.Uri>();
-  readonly onDidChange = this.emitter.event;
-
-  set(uri: vscode.Uri, content: string): void {
-    this.contents.set(uri.toString(), content);
-    this.emitter.fire(uri);
-    if (this.contents.size > 20) {
-      const oldest = this.contents.keys().next().value;
-      if (oldest !== undefined) {
-        this.contents.delete(oldest);
-      }
-    }
-  }
-
-  provideTextDocumentContent(uri: vscode.Uri): string {
-    return this.contents.get(uri.toString()) ?? '';
-  }
-
-  dispose(): void {
-    this.contents.clear();
-    this.emitter.dispose();
-  }
-}
+export { PREVIEW_SCHEME } from './livePreview';
 
 function activeEditor(app: CodeNeatApp): vscode.TextEditor | undefined {
   const editor = vscode.window.activeTextEditor ?? app.lastEditor;
@@ -57,24 +32,28 @@ async function applyToEditor(app: CodeNeatApp, editor: vscode.TextEditor, origin
     return false;
   }
   const edits = app.toEdits(document, original, formatted);
-  const workspaceEdit = new vscode.WorkspaceEdit();
-  workspaceEdit.set(document.uri, edits);
-  // One WorkspaceEdit is one undo step, exactly like VS Code's own Format Document.
-  return vscode.workspace.applyEdit(workspaceEdit);
+  // All replacements go into one editor edit with explicit undo stops, so a single Undo always
+  // restores the whole file, exactly like VS Code's own Format Document.
+  return editor.edit(
+    (builder) => {
+      for (const edit of edits) {
+        builder.replace(edit.range, edit.newText);
+      }
+    },
+    { undoStopBefore: true, undoStopAfter: true },
+  );
 }
 
-function changedLineCount(original: string, formatted: string): number {
-  const before = original.split(/\r?\n/);
-  const after = new Set(formatted.split(/\r?\n/));
-  return Math.max(1, before.filter((line) => !after.has(line)).length);
-}
-
-export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string, languageId?: string) => void): vscode.Disposable {
-  const previews = new PreviewContentProvider();
+export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string, languageId?: string) => void, live: LivePreview, review: InlineReview): vscode.Disposable {
 
   const formatDocument = async (range?: vscode.Range): Promise<void> => {
     const editor = activeEditor(app);
     if (!editor) {
+      return;
+    }
+    // With "Review Changes in the Editor" switched on, whole-file formatting is shown for approval.
+    if (!range && app.config.read(editor.document.uri).inlineReview) {
+      await review.start(editor);
       return;
     }
     const original = editor.document.getText();
@@ -108,27 +87,24 @@ export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string
 
   const previewFormatting = async (): Promise<void> => {
     const editor = activeEditor(app);
-    if (!editor) {
+    if (editor) {
+      await live.open(editor.document);
+    }
+  };
+
+  /** Applies the formatting shown in a preview diff to the file it belongs to. */
+  const applyPreview = async (): Promise<void> => {
+    const active = vscode.window.activeTextEditor?.document;
+    const document = active ? (live.sourceOf(active.uri) ?? (active.uri.scheme === PREVIEW_SCHEME ? undefined : active)) : app.lastEditor?.document;
+    if (!document) {
+      vscode.window.showInformationMessage('CodeNeat: The file this preview belongs to is no longer open.');
       return;
     }
-    const { result, error } = await app.formatDocument(editor.document);
-    if (error) {
-      void app.reportError(error, editor.document.uri.toString());
-      return;
+    if (await live.apply(document)) {
+      vscode.window.setStatusBarMessage('$(check) CodeNeat: formatting applied. Use Undo to revert.', 4000);
+    } else {
+      vscode.window.setStatusBarMessage('$(check) CodeNeat: nothing to change.', 3000);
     }
-    if (!result) {
-      return;
-    }
-    if (!result.changed) {
-      vscode.window.showInformationMessage(`CodeNeat: This file is already formatted (${result.formatterName}).`);
-      return;
-    }
-    const name = editor.document.fileName.split(/[\\/]/).pop() ?? 'file';
-    const uri = vscode.Uri.from({ scheme: PREVIEW_SCHEME, path: `/${name}`, query: encodeURIComponent(editor.document.uri.toString()) });
-    previews.set(uri, result.text);
-    await vscode.commands.executeCommand('vscode.diff', editor.document.uri, uri, `${name}: Current ↔ Formatted by ${result.formatterName}`, {
-      preview: true,
-    });
   };
 
   const checkFormatting = async (): Promise<void> => {
@@ -368,8 +344,6 @@ export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string
   };
 
   return vscode.Disposable.from(
-    previews,
-    vscode.workspace.registerTextDocumentContentProvider(PREVIEW_SCHEME, previews),
     vscode.commands.registerCommand('codeneat.formatDocument', () => formatDocument()),
     vscode.commands.registerCommand('codeneat.formatSelection', async () => {
       const editor = activeEditor(app);
@@ -386,6 +360,43 @@ export function registerCommands(app: CodeNeatApp, openDashboard: (page?: string
       formatWorkspace(app, resource instanceof vscode.Uri ? resource : undefined),
     ),
     vscode.commands.registerCommand('codeneat.previewFormatting', previewFormatting),
+    vscode.commands.registerCommand('codeneat.applyPreview', applyPreview),
+    vscode.commands.registerCommand('codeneat.showMenu', async () => {
+      const editor = vscode.window.activeTextEditor ?? app.lastEditor;
+      const language = editor ? app.languageOf(editor.document) : undefined;
+      type Item = vscode.QuickPickItem & { command?: string };
+      const items: Item[] = [];
+      if (language) {
+        items.push(
+          { label: '$(sparkle) Format Document', description: language.label, command: 'codeneat.formatDocument' },
+          { label: '$(diff) Format Document with Review', description: 'see the changes, then Enter to keep or Escape to undo', command: 'codeneat.formatWithReview' },
+          { label: '$(open-preview) Preview Formatting (Live)', description: 'side-by-side, nothing is changed', command: 'codeneat.previewFormatting' },
+          { label: '$(checklist) Check Formatting', command: 'codeneat.checkFormatting' },
+          { label: '', kind: vscode.QuickPickItemKind.Separator },
+          { label: '$(tools) Select Formatter', description: `for ${language.label}`, command: 'codeneat.selectFormatter' },
+        );
+      }
+      items.push(
+        { label: '$(symbol-color) Select Profile', command: 'codeneat.selectProfile' },
+        { label: '$(folder) Format Workspace…', command: 'codeneat.formatWorkspace' },
+        { label: '', kind: vscode.QuickPickItemKind.Separator },
+        { label: '$(settings-gear) Open CodeNeat Settings', command: 'codeneat.openSettings' },
+        { label: '$(book) User Guide', command: 'codeneat.openUserGuide' },
+      );
+      const picked = await vscode.window.showQuickPick(items, { title: 'CodeNeat', placeHolder: language ? `What do you want to do with this ${language.label} file?` : 'Open a supported file to format it' });
+      if (picked?.command) {
+        await vscode.commands.executeCommand(picked.command);
+      }
+    }),
+    vscode.commands.registerCommand('codeneat.openUserGuide', () =>
+      vscode.commands.executeCommand('markdown.showPreview', vscode.Uri.joinPath(app.context.extensionUri, 'docs', 'usage.md')),
+    ),
+    vscode.commands.registerCommand('codeneat.formatWithReview', async () => {
+      const editor = activeEditor(app);
+      return editor ? review.start(editor) : false;
+    }),
+    vscode.commands.registerCommand('codeneat.keepInlineReview', (uri?: unknown) => review.keep(uri instanceof vscode.Uri ? uri : undefined)),
+    vscode.commands.registerCommand('codeneat.discardInlineReview', (uri?: unknown) => review.discard(uri instanceof vscode.Uri ? uri : undefined)),
     vscode.commands.registerCommand('codeneat.checkFormatting', checkFormatting),
     vscode.commands.registerCommand('codeneat.openSettings', (page?: unknown, languageId?: unknown) =>
       openDashboard(typeof page === 'string' ? page : undefined, typeof languageId === 'string' ? languageId : undefined),

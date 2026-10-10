@@ -18,3 +18,5 @@ vitest.config.ts
 *.vsix
 CONTRIBUTING.md
 docs/architecture.md
+# Native command-line binaries of dockerfmt; CodeNeat only uses its WebAssembly build.
+node_modules/@reteps/dockerfmt-*/**

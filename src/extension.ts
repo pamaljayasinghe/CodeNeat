@@ -3,6 +3,8 @@ import { chooseFormatter } from './shared/resolve';
 import { CodeNeatApp } from './vscode/app';
 import { PREVIEW_SCHEME, registerCommands } from './vscode/commands';
 import { DashboardPanel } from './vscode/dashboard';
+import { InlineReview } from './vscode/inlineReview';
+import { LivePreview, type SaveReview } from './vscode/livePreview';
 import { registerProviders } from './vscode/providers';
 import { SidebarProvider } from './vscode/sidebar';
 
@@ -15,6 +17,10 @@ export interface CodeNeatApi {
   isDashboardOpen(): boolean;
   /** True once the dashboard UI has loaded its state from the extension host. */
   isDashboardRendered(): boolean;
+  /** True while the active editor shows formatting changes that wait for Keep or Undo. */
+  isInlineReviewActive(): boolean;
+  /** The last "review changes on save" prompt that was offered, if any. */
+  lastSaveReview(): SaveReview | undefined;
   /** Formatter ids that are currently available. */
   availableFormatters(): string[];
 }
@@ -32,6 +38,8 @@ export function activate(context: vscode.ExtensionContext): CodeNeatApi {
   const dashboard = new DashboardPanel(app);
   const openDashboard = (page?: string, languageId?: string): void => dashboard.show(page, languageId);
   const sidebar = new SidebarProvider(app, openDashboard);
+  const live = new LivePreview(app);
+  const review = new InlineReview(app);
 
   let providers = registerProviders(app);
   const reRegisterProviders = (): void => {
@@ -41,11 +49,13 @@ export function activate(context: vscode.ExtensionContext): CodeNeatApi {
 
   const statusBar = vscode.window.createStatusBarItem('codeneat.status', vscode.StatusBarAlignment.Right, 90);
   statusBar.name = 'CodeNeat';
-  statusBar.command = 'codeneat.openSettings';
+  statusBar.command = 'codeneat.showMenu';
   const updateStatusBar = (): void => {
     const editor = vscode.window.activeTextEditor;
     const settings = app.config.read(editor?.document.uri);
     const language = editor ? app.languageOf(editor.document) : undefined;
+    // Drives the Format button in the editor title bar: only shown for files CodeNeat can format.
+    void vscode.commands.executeCommand('setContext', 'codeneat.activeFileSupported', !!language && settings.enabled && editor?.document.uri.scheme !== PREVIEW_SCHEME);
     if (!settings.showStatusBar || !editor || !language) {
       statusBar.hide();
       return;
@@ -56,8 +66,8 @@ export function activate(context: vscode.ExtensionContext): CodeNeatApi {
     statusBar.text = `${available ? '$(sparkle)' : '$(warning)'} CodeNeat: ${formatter?.displayName ?? 'no formatter'}`;
     statusBar.tooltip = formatter
       ? available
-        ? `CodeNeat formats ${language.label} with ${formatter.displayName}. Click to open CodeNeat settings.`
-        : `${formatter.displayName} is not installed. ${formatter.install.summary} Click to open CodeNeat settings.`
+        ? `CodeNeat formats ${language.label} with ${formatter.displayName}. Click for CodeNeat actions.`
+        : `${formatter.displayName} is not installed. ${formatter.install.summary} Click for CodeNeat actions.`
       : `CodeNeat has no formatter for ${language.label}.`;
     statusBar.show();
   };
@@ -72,7 +82,9 @@ export function activate(context: vscode.ExtensionContext): CodeNeatApi {
     sidebar,
     statusBar,
     { dispose: () => providers.dispose() },
-    registerCommands(app, openDashboard),
+    live,
+    review,
+    registerCommands(app, openDashboard, live, review),
     vscode.window.registerWebviewViewProvider(SidebarProvider.viewId, sidebar),
     vscode.window.onDidChangeActiveTextEditor((editor) => {
       if (isRealEditor(editor)) {
@@ -111,6 +123,8 @@ export function activate(context: vscode.ExtensionContext): CodeNeatApi {
     ready,
     isDashboardOpen: () => dashboard.isOpen,
     isDashboardRendered: () => dashboard.isRendered,
+    isInlineReviewActive: () => review.isActive(),
+    lastSaveReview: () => live.lastSaveReview,
     availableFormatters: () =>
       Object.values(app.registry.statuses)
         .filter((status) => status.available)

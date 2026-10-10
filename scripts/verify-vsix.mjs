@@ -48,6 +48,10 @@ const required = [
   'dist/webview/sidebar.css',
   'docs/walkthrough/open-file.md',
   'docs/languages.md',
+  'docs/usage.md',
+  'THIRD_PARTY_NOTICES.md',
+  'assets/format-light.svg',
+  'assets/format-dark.svg',
   'node_modules/prettier/package.json',
   'node_modules/prettier/index.cjs',
   'node_modules/prettier-plugin-java/package.json',
@@ -65,7 +69,7 @@ const required = [
   'node_modules/@wasm-fmt/dart_fmt/dart_fmt.wasm',
   'node_modules/@reteps/dockerfmt/dist/format.wasm',
 ];
-const forbidden = [/^extension\/src\//, /^extension\/webview\//, /^extension\/tests\//, /^extension\/scripts\//, /\.map$/, /^extension\/\.github\//, /^extension\/node_modules\/(typescript|esbuild|vitest|eslint|react|@vscode)\//];
+const forbidden = [/^extension\/node_modules\/@reteps\/dockerfmt-/, /^extension\/src\//, /^extension\/webview\//, /^extension\/tests\//, /^extension\/scripts\//, /\.map$/, /^extension\/\.github\//, /^extension\/node_modules\/(typescript|esbuild|vitest|eslint|react|@vscode)\//];
 
 const problems = [];
 for (const name of required) {

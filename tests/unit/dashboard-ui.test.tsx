@@ -28,17 +28,22 @@ function makeState(languageId: string | undefined): DashboardState {
       profiles: {},
       respectProjectConfig: true,
       codeneatFormatOnType: true,
+      previewOnSave: false,
+      inlineReview: false,
       timeoutMs: 10000,
       maxFileSizeKB: 2048,
       workspaceExclude: [],
       useGitignore: true,
       toolPaths: {},
       showStatusBar: true,
+      enabled: true,
+      showEditorButton: true,
+      showContextMenu: true,
     },
     editor: DEFAULT_EDITOR_SETTINGS,
     defaultFormatter: { global: null, byLanguage: {} },
     activeEditor: languageId
-      ? { uri: 'file:///a', fileName: 'a', languageId, vscodeLanguageId: languageId, hasSelection: false, lineCount: 3, tooLarge: false }
+      ? { uri: 'file:///a', fileName: 'a', languageId, vscodeLanguageId: languageId, hasSelection: false, lineCount: 3, tooLarge: false, revision: 1 }
       : null,
     project: {},
     trusted: true,

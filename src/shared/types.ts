@@ -214,12 +214,22 @@ export interface CodeNeatSettings {
   profiles: Record<string, ProfileDefinition>;
   respectProjectConfig: boolean;
   codeneatFormatOnType: boolean;
+  /** Ask to review CodeNeat's changes after a manual save instead of formatting silently. */
+  previewOnSave: boolean;
+  /** Show the result of CodeNeat: Format Document in the editor and wait for Keep or Undo. */
+  inlineReview: boolean;
   timeoutMs: number;
   maxFileSizeKB: number;
   workspaceExclude: string[];
   useGitignore: boolean;
   toolPaths: Record<string, string>;
   showStatusBar: boolean;
+  /** Master switch: when false CodeNeat formats nothing. */
+  enabled: boolean;
+  /** Show the Format button in the editor title bar. */
+  showEditorButton: boolean;
+  /** Show CodeNeat entries in the editor's right-click menu. */
+  showContextMenu: boolean;
 }
 
 export type ValueSource =
@@ -273,6 +283,8 @@ export interface ActiveEditorInfo {
   hasSelection: boolean;
   lineCount: number;
   tooLarge: boolean;
+  /** Changes with every edit, so the dashboard preview can follow the file while it is edited. */
+  revision: number;
 }
 
 /** Complete snapshot sent to the dashboard. */
@@ -304,12 +316,22 @@ export interface SettingsDraft {
   editor: EditorSettings;
   respectProjectConfig: boolean;
   codeneatFormatOnType: boolean;
+  /** Ask to review CodeNeat's changes after a manual save instead of formatting silently. */
+  previewOnSave: boolean;
+  /** Show the result of CodeNeat: Format Document in the editor and wait for Keep or Undo. */
+  inlineReview: boolean;
   timeoutMs: number;
   maxFileSizeKB: number;
   workspaceExclude: string[];
   useGitignore: boolean;
   toolPaths: Record<string, string>;
   showStatusBar: boolean;
+  /** Master switch: when false CodeNeat formats nothing. */
+  enabled: boolean;
+  /** Show the Format button in the editor title bar. */
+  showEditorButton: boolean;
+  /** Show CodeNeat entries in the editor's right-click menu. */
+  showContextMenu: boolean;
 }
 
 export interface PreviewRequest {
