@@ -72,6 +72,13 @@ describe('indentation', () => {
     expect(java.text).toContain('\n\tvoid f() {\n\t\tint x = 1;');
     const xml = await service.format({ text: '<a><b><c/></b></a>\n', languageId: 'xml', fileName: 'a.xml' }, withStyle({ indentSize: 4, xmlWhitespace: 'ignore' }));
     expect(xml.text).toContain('\n    <b>\n        <c />');
+    const nested = '<a><price currency="USD">47.50</price><note>  two  spaces  </note></a>\n';
+    const indented = await service.format({ text: nested, languageId: 'xml', fileName: 'a.xml' }, makeSettings());
+    expect(indented.text).toBe('<a>\n  <price currency="USD">47.50</price>\n  <note>  two  spaces  </note>\n</a>\n');
+    const entities = await service.format({ text: '<a><t>&amp;</t><u a="x &amp; y">&#169; &lt;</u></a>\n', languageId: 'xml', fileName: 'a.xml' }, makeSettings());
+    expect(entities.text).toBe('<a>\n  <t>&amp;</t>\n  <u a="x &amp; y">&#169; &lt;</u>\n</a>\n');
+    const untouched = await service.format({ text: nested, languageId: 'xml', fileName: 'a.xml' }, withStyle({ xmlWhitespace: 'strict' }));
+    expect(untouched.text).toContain('<a><price');
     const sql = await service.format({ text: 'select a,b from t where x=1;\n', languageId: 'sql', fileName: 'a.sql' }, withStyle({ indentSize: 4, sqlKeywordCase: 'upper' }));
     expect(sql.text).toBe('SELECT\n    a,\n    b\nFROM\n    t\nWHERE\n    x = 1;\n');
   });
@@ -191,6 +198,75 @@ describe('project configuration', () => {
     const inner = path.join(project, 'src');
     const result = await service.format({ ...input, workspaceRoot: inner }, makeSettings());
     expect(result.text).toContain('"x";');
+  });
+});
+
+describe('defaults that keep code working', () => {
+  it('keeps the bracket form of COPY and ADD in Dockerfiles', async () => {
+    const text = 'FROM a\nCOPY --from=build ["/a b", "/c"]\nADD ["my file.txt", "/dest dir/"]\nONBUILD COPY ["x","y"]\nCOPY   p   q\nCMD ["node","x.js"]\n';
+    const result = await service.format({ text, languageId: 'dockerfile', fileName: 'Dockerfile' }, makeSettings(), undefined, 'dockerfmt-wasm');
+    expect(result.text).toBe('FROM a\nCOPY --from=build ["/a b", "/c"]\nADD ["my file.txt", "/dest dir/"]\nONBUILD COPY ["x", "y"]\nCOPY p q\nCMD ["node", "x.js"]\n');
+  });
+
+  it('does not put a space between a SQL function and its bracket', async () => {
+    const text = 'select now(), my_func(x), concat(a,b), count(*) from t where a in(1,2);\n';
+    const result = await service.format({ text, languageId: 'sql', fileName: 'a.sql' }, makeSettings());
+    expect(result.text).toBe('select\n  now(),\n  my_func(x),\n  concat(a, b),\n  count(*)\nfrom\n  t\nwhere\n  a in (1, 2);\n');
+    const mysql = await service.format({ text, languageId: 'sql', fileName: 'a.sql' }, withStyle({ sqlDialect: 'mysql', sqlKeywordCase: 'upper' }));
+    expect(mysql.text).toContain('  now(),\n  my_func(x),');
+  });
+
+  it('refuses SQL whose operators the dialect would pull apart, and names a dialect that works', async () => {
+    const text = 'select a<=>b, 1<<2 from t;\n';
+    await expect(service.format({ text, languageId: 'sql', fileName: 'a.sql' }, makeSettings())).rejects.toThrow(/does not have the operator <=>.*MySQL/s);
+    const mysql = await service.format({ text, languageId: 'sql', fileName: 'a.sql' }, withStyle({ sqlDialect: 'mysql' }));
+    expect(mysql.text).toContain('a <=> b');
+    const postgres = service.format({ text: "select id::text from t;\n", languageId: 'sql', fileName: 'a.sql' }, makeSettings());
+    await expect(postgres).rejects.toThrow(/could not read this file as "Standard SQL".*PostgreSQL/s);
+  });
+
+  it('reads a backslash in standard SQL and keeps schema-qualified calls together', async () => {
+    const escaped = await service.format({ text: "select a from t where a like '%x' escape '\\';\n", languageId: 'sql', fileName: 'a.sql' }, makeSettings());
+    expect(escaped.text).toContain("escape '\\';");
+    const qualified = await service.format({ text: 'select dbo.fn_calc(o.id) from o;\n', languageId: 'sql', fileName: 'a.sql' }, makeSettings());
+    expect(qualified.text).toContain('dbo.fn_calc(o.id)');
+    const literal = await service.format({ text: "select s.f(1), 'kept: s.f (1)' from o;\n", languageId: 'sql', fileName: 'a.sql' }, makeSettings());
+    expect(literal.text).toContain("'kept: s.f (1)'");
+  });
+
+  it('formats XML that declares entities in its DOCTYPE', async () => {
+    const text = '<?xml version="1.0"?>\n<!DOCTYPE doc [<!ENTITY co "Company &amp; Sons"><!ELEMENT doc ANY>]>\n<doc><a>&co;</a><b>x</b></doc>\n';
+    const result = await service.format({ text, languageId: 'xml', fileName: 'a.xml' }, makeSettings());
+    expect(result.text).toBe('<?xml version="1.0" ?>\n<!DOCTYPE doc [<!ENTITY co "Company &amp; Sons"><!ELEMENT doc ANY>]>\n<doc>\n  <a>&co;</a>\n  <b>x</b>\n</doc>\n');
+  });
+
+  it('keeps C# raw string literals and u8 strings exactly as written', async () => {
+    const raw = '"""\n      raw "string"\n        keep   this\n      """';
+    const text = `class A{void F(){var raw=${raw};var i=$"""{x}  "q"""";var u="x"u8;var v=@"C:\\dir  ""q""";var s=$"a {d["k"]}  b";var n=1;}}\n`;
+    const result = await service.format({ text, languageId: 'csharp', fileName: 'a.cs' }, makeSettings(), undefined, 'clang-format-wasm');
+    expect(result.text).toContain(`var raw = ${raw};`);
+    expect(result.text).toContain('var i = $"""{x}  "q"""";');
+    expect(result.text).toContain('var u = "x"u8;');
+    expect(result.text).toContain('var v = @"C:\\dir  ""q""";');
+    expect(result.text).toContain('var s = $"a {d["k"]}  b";');
+    expect(result.text).toContain('        var n = 1;');
+  });
+
+  it('leaves the order of C and C++ includes alone unless sorting is chosen', async () => {
+    const text = '#include "config.h"\n#include <windows.h>\n#include <stdio.h>\nint main(void){return 0;}\n';
+    const input = { text, languageId: 'c', fileName: 'a.c' };
+    const kept = await service.format(input, makeSettings(), undefined, 'clang-format-wasm');
+    expect(kept.text).toContain('#include "config.h"\n#include <windows.h>\n#include <stdio.h>\n');
+    const sorted = await service.format(input, withStyle({ sortImports: true }), undefined, 'clang-format-wasm');
+    expect(sorted.text).toContain('#include "config.h"\n#include <stdio.h>\n#include <windows.h>\n');
+  });
+
+  it('gives the same LaTeX result when it is formatted again', async () => {
+    const text = '\\documentclass{article}\n\\begin{document}\nInline $x_1^2 + y$ and \\(a\\).\n\\begin{verbatim}\n  keep   this\n\\end{verbatim}\n\\end{document}\n';
+    const first = await service.format({ text, languageId: 'latex', fileName: 'a.tex' }, makeSettings());
+    const second = await service.format({ text: first.text, languageId: 'latex', fileName: 'a.tex' }, makeSettings());
+    expect(second.text).toBe(first.text);
+    expect(first.text).toContain('  keep   this');
   });
 });
 

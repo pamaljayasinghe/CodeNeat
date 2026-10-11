@@ -2,6 +2,29 @@
 
 All notable changes to CodeNeat are documented here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
+## [Unreleased]
+
+### Changed
+
+- XML files are now indented element by element out of the box, and text inside elements is left exactly as it is. Choose "Meaningful (do not touch)" under **XML: Whitespace in Text** to get the previous behaviour.
+
+- C and C++ `#include` lines are no longer sorted unless you switch on **Sort Imports**, because the order of includes can matter.
+
+### Fixed
+
+- Dockerfile: `COPY ["a b", "/c"]` and `ADD [...]` keep their bracket form. dockerfmt rewrote them as plain words, which broke paths that contain spaces.
+- SQL: no space is put between a function name and its bracket (`now()` stayed `now ()` before), which some databases reject.
+- SQL: a query that uses an operator the chosen dialect does not have (for example `<=>` or `<<` in Standard SQL) is no longer rewritten with the operator pulled apart. The file is left unchanged and the message names the dialects that can read it.
+- SQL: `escape '\'` is read correctly in Standard SQL, and schema-qualified calls such as `dbo.fn(x)` keep their bracket attached.
+- XML: files whose DOCTYPE declares entities (`<!DOCTYPE doc [ ... ]>`) can be formatted.
+- C# with the bundled formatter: raw string literals (`"""..."""`) and `"x"u8` strings are kept exactly as written. They were rewritten into code that no longer compiled.
+- Java with the bundled clang-format: formatting a file a second time no longer moves the imports again.
+- ktlint: code that contains a percent sign is no longer changed. ktlint's "--stdin" mode turned `%%` into `%` and `%n` into a line break, and crashed on other uses, so CodeNeat now lets it format a private copy of the file.
+- RuboCop: when two of its layout rules keep undoing each other, CodeNeat runs it again without those rules instead of failing. Other failures now show the real reason instead of a list of corrections.
+- XML: text that consists only of entities, such as `<t>&amp;</t>`, stays on one line.
+- LaTeX: formatting a file a second time no longer changes it again.
+- On Windows the dockerfmt launcher that comes with the bundled package no longer counts as an installed formatter; the bundled dockerfmt is used instead.
+
 ## [1.0.1] - 2026-10-10
 
 ### Changed

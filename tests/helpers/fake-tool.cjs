@@ -11,6 +11,10 @@ switch (mode) {
   case '--version':
     process.stdout.write('faketool 1.2.3\n');
     break;
+  case 'broken-launcher':
+    process.stderr.write('faketool does not ship a binary for this platform.\nNode.js v20.1.0\n');
+    process.exit(1);
+    break;
   case 'upper':
     process.stdout.write(readStdin().toUpperCase());
     break;

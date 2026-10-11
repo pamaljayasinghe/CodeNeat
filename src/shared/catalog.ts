@@ -691,13 +691,13 @@ export const CATALOG: OptionDefinition[] = [
     control: 'radio',
     label: 'XML: Whitespace in Text',
     description:
-      'Whether whitespace inside elements is meaningful. "Ignore" allows real re-indentation but changes text content whitespace.',
+      'Whether whitespace inside elements is meaningful. By default elements are indented and text is left as it is. "Not meaningful" also re-wraps text; "Meaningful (do not touch)" changes almost nothing.',
     choices: [
       { value: 'strict', label: 'Meaningful (do not touch)' },
       { value: 'preserve', label: 'Meaningful only inside text' },
       { value: 'ignore', label: 'Not meaningful (re-indent freely)' },
     ],
-    fallback: 'strict',
+    fallback: 'preserve',
     keywords: ['xmlWhitespaceSensitivity'],
   },
   {

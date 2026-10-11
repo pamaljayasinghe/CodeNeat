@@ -125,6 +125,12 @@ describe('external formatter adapter', () => {
     expect(await adapter.detect(env('fake'))).toMatchObject({ id: 'fake', available: true, version: '1.2.3', origin: 'setting', path: NODE });
   });
 
+  it('does not count a launcher that fails to start as installed', async () => {
+    const broken = { versionArgs: [FAKE, 'broken-launcher'], versionCheck: /faketool/i };
+    expect((await new ExternalAdapter(fakeSpec('fake', () => ({ mode: 'stdin', args: [] }), { ...broken, versionMustSucceed: true })).detect(env('fake'))).available).toBe(false);
+    expect((await new ExternalAdapter(fakeSpec('fake', () => ({ mode: 'stdin', args: [] }), broken)).detect(env('fake'))).available).toBe(true);
+  });
+
   it('formats through standard input and output', async () => {
     const adapter = new ExternalAdapter(fakeSpec('fake', () => ({ mode: 'stdin', args: [FAKE, 'upper'] })));
     expect(await adapter.format(request({ text: 'héllo\n' }), env('fake'), token)).toBe('HÉLLO\n');

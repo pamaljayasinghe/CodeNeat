@@ -158,8 +158,10 @@ export function clangFormatStyle(style: BuildContext['style']): string {
   if (operators) {
     add('BreakBeforeBinaryOperators', operators === 'start' ? 'NonAssignment' : 'None');
   }
-  if (style.bool('sortImports') !== undefined) {
-    add('SortIncludes', style.bool('sortImports') ? 'CaseSensitive' : 'Never');
+  // Include order can matter in C and C++, so for those languages sorting is off unless it is chosen.
+  const sortIncludes = style.bool('sortImports') ?? (style.effectiveBool('sortImports') === false ? false : undefined);
+  if (sortIncludes !== undefined) {
+    add('SortIncludes', sortIncludes ? 'CaseSensitive' : 'Never');
   }
   add('ReflowComments', style.bool('reflowComments'));
   return `{${entries.join(', ')}}`;
@@ -204,7 +206,13 @@ export const clangFormat: ExternalSpec = {
       shortFunctionsOnOneLine: { native: 'AllowShortFunctionsOnASingleLine', support: 'full', default: 'all' },
       shortIfOnOneLine: { native: 'AllowShortIfStatementsOnASingleLine', support: 'full', default: false },
       operatorLinePosition: { native: 'BreakBeforeBinaryOperators', support: 'full', default: 'end' },
-      sortImports: { native: 'SortIncludes', support: 'full', default: true, note: 'Sorts #include lines within each block. In rare cases include order matters in C and C++.' },
+      sortImports: {
+        native: 'SortIncludes',
+        support: 'full',
+        default: true,
+        languageDefaults: { c: false, cpp: false },
+        note: 'Sorts #include lines within each block. Off by default for C and C++, where the order of includes can matter.',
+      },
       reflowComments: { native: 'ReflowComments', support: 'full', default: true },
     },
     lineLength: 'preferred',
