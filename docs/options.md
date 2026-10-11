@@ -92,7 +92,7 @@ An option only has an effect for formatters that support it. The dashboard disab
 | **Shell: Space After Redirect Operators** (`shellSpaceRedirects`)<br>Write "> file" instead of ">file". | `true`, `false` | shfmt (bundled), shfmt |
 | **Shell: Function Brace on Next Line** (`shellFunctionNextLine`)<br>Put the opening brace of a function on its own line. | `true`, `false` | shfmt (bundled), shfmt |
 | **Lua: Parentheses on Calls** (`luaCallParentheses`)<br>Whether calls with a single string or table argument keep their parentheses. | `Always`, `NoSingleString`, `NoSingleTable`, `None` | StyLua (bundled), StyLua |
-| **XML: Whitespace in Text** (`xmlWhitespace`)<br>Whether whitespace inside elements is meaningful. "Ignore" allows real re-indentation but changes text content whitespace. | `strict`, `preserve`, `ignore` | Prettier for XML |
+| **XML: Whitespace in Text** (`xmlWhitespace`)<br>Whether whitespace inside elements is meaningful. By default elements are indented and text is left as it is. "Not meaningful" also re-wraps text; "Meaningful (do not touch)" changes almost nothing. | `strict`, `preserve`, `ignore` | Prettier for XML |
 | **XML: Space Before "/>"** (`xmlSelfClosingSpace`)<br>Write <tag /> instead of <tag/>. | `true`, `false` | Prettier for XML |
 | **XML: Sort Attributes by Name** (`xmlSortAttributes`)<br>Order the attributes of every element alphabetically. | `true`, `false` | Prettier for XML |
 | **TOML: Align "=" Signs** (`tomlAlignEntries`)<br>Line up the "=" of consecutive entries in a column. | `true`, `false` | Taplo (bundled), Taplo |

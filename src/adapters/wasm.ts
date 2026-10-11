@@ -12,7 +12,7 @@ import {
 import { EOL_BY_CODENEAT } from '../core/eol';
 import type { CancellationSignal } from '../core/process';
 import type { FormatterDescriptor, FormatterStatus, OptionCapability } from '../shared/types';
-import { dockerfmt } from './tools/data';
+import { dockerfmt, keepBracketForm } from './tools/data';
 import { dartFormat } from './tools/mobile';
 import { ruff } from './tools/python';
 import { shfmt, stylua } from './tools/scripting';
@@ -255,6 +255,111 @@ function lineOf(text: string, offset: number): number {
   return line;
 }
 
+/**
+ * clang-format does not know C# raw string literals ("""...""") or the u8 suffix and rewrites them
+ * into code that no longer compiles. They are swapped for ordinary short strings while it runs.
+ */
+export function protectCsharpLiterals(text: string): { text: string; restore(formatted: string): string } | undefined {
+  const hidden: string[] = [];
+  let masked = '';
+  let copied = 0;
+  // Returns the index just after the string that starts at `start`, where `quote` is its first quote.
+  const stringEnd = (start: number, quote: number): { end: number; raw: boolean } => {
+    const prefix = text.slice(start, quote);
+    let quotes = 0;
+    while (text[quote + quotes] === '"') {
+      quotes++;
+    }
+    if (!prefix.includes('@') && quotes >= 3) {
+      const close = text.indexOf('"'.repeat(quotes), quote + quotes);
+      let end = close < 0 ? text.length : close + quotes;
+      while (text[end] === '"') {
+        end++;
+      }
+      return { end, raw: true };
+    }
+    let index = quote + 1;
+    let depth = 0;
+    while (index < text.length) {
+      const char = text[index];
+      if (prefix.includes('@')) {
+        if (char === '"' && depth === 0) {
+          if (text[index + 1] !== '"') {
+            return { end: index + 1, raw: false };
+          }
+          index++;
+        }
+      } else if (char === '\\') {
+        index++;
+      } else if (char === '"' && depth === 0) {
+        return { end: index + 1, raw: false };
+      } else if (char === '\n' && depth === 0) {
+        return { end: index, raw: false };
+      }
+      if (prefix.includes('$')) {
+        if (char === '{' && text[index + 1] === '{' && depth === 0) {
+          index++;
+        } else if (char === '{') {
+          depth++;
+        } else if (char === '}' && depth > 0) {
+          depth--;
+        } else if (char === '"' && depth > 0) {
+          index = stringEnd(index, index).end - 1;
+        }
+      }
+      index++;
+    }
+    return { end: text.length, raw: false };
+  };
+  const opening = /(?:\$+@|@\$+|\$+|@)?"/y;
+  for (let index = 0; index < text.length; ) {
+    if (text.startsWith('//', index)) {
+      const end = text.indexOf('\n', index);
+      index = end < 0 ? text.length : end;
+    } else if (text.startsWith('/*', index)) {
+      const end = text.indexOf('*/', index + 2);
+      index = end < 0 ? text.length : end + 2;
+    } else if (text[index] === "'") {
+      const end = text[index + 1] === '\\' ? text.indexOf("'", index + 3) : text[index + 2] === "'" ? index + 2 : -1;
+      index = end < 0 ? index + 1 : end + 1;
+    } else {
+      opening.lastIndex = index;
+      const match = opening.exec(text);
+      if (!match) {
+        index++;
+        continue;
+      }
+      const found = stringEnd(index, index + match[0].length - 1);
+      const suffix = /^u8/i.test(text.slice(found.end, found.end + 2)) ? 2 : 0;
+      if (found.raw || suffix > 0) {
+        masked += `${text.slice(copied, index)}"${CSHARP_MASK}${hidden.length}__"`;
+        hidden.push(text.slice(index, found.end + suffix));
+        copied = found.end + suffix;
+      }
+      index = found.end + suffix;
+    }
+  }
+  if (hidden.length === 0) {
+    return undefined;
+  }
+  masked += text.slice(copied);
+  return {
+    text: masked,
+    restore(formatted) {
+      let result = formatted;
+      for (const [position, original] of hidden.entries()) {
+        const placeholder = `"${CSHARP_MASK}${position}__"`;
+        if (result.split(placeholder).length !== 2) {
+          throw new FormatterError('failed', 'clang-format could not keep a C# raw string literal intact, so nothing was changed. Install CSharpier for C#.');
+        }
+        result = result.replace(placeholder, () => original);
+      }
+      return result;
+    },
+  };
+}
+const CSHARP_MASK = '__codeneat_literal_';
+
 export const CLANG_WASM: EngineSpec<ClangModule> = {
   descriptor: bundled(
     clangFormat.descriptor,
@@ -276,7 +381,10 @@ export const CLANG_WASM: EngineSpec<ClangModule> = {
       },
     },
     Object.keys(clangFormat.descriptor.options).filter((id) => id !== 'cppBaseStyle' && id !== 'lineEndings'),
-    [noConfigFile('clang-format', '.clang-format')],
+    [
+      noConfigFile('clang-format', '.clang-format'),
+      'For C#, newer syntax such as switch expressions, LINQ queries and generic constraints can come out awkwardly laid out (the code still works). Install CSharpier for properly formatted C#.',
+    ],
   ),
   packageName: '@wasm-fmt/clang-format',
   load: () => importModule<ClangModule>('@wasm-fmt/clang-format'),
@@ -286,12 +394,31 @@ export const CLANG_WASM: EngineSpec<ClangModule> = {
     const known = clangFormat.descriptor.extensions.includes(extension) || extension === '.cs' || extension === '.java';
     const filename = known ? `main${extension}` : (CLANG_FILENAMES[request.languageId] ?? 'main.cpp');
     const inline = clangFormatStyle(style);
+    // Sorting imports can take clang-format a second run, so it is repeated until nothing changes.
+    const settle = (text: string): string => {
+      let output = engine.format(text, filename, inline);
+      for (let pass = 1; pass < 3; pass++) {
+        const again = engine.format(output, filename, inline);
+        if (again === output) {
+          break;
+        }
+        output = again;
+      }
+      return output;
+    };
+    const literals = request.languageId === 'csharp' && !request.text.includes(CSHARP_MASK) ? protectCsharpLiterals(request.text) : undefined;
+    if (literals) {
+      if (request.range) {
+        throw new FormatterError('unsupported', 'clang-format cannot format only a selection of a C# file that contains raw string literals. Format the whole file instead.');
+      }
+      return literals.restore(settle(literals.text));
+    }
     if (request.range) {
       const from = lineOf(request.text, request.range.start);
       const to = lineOf(request.text, Math.max(request.range.start, request.range.end - 1));
       return engine.format_line_range(request.text, from, to, filename, inline);
     }
-    return engine.format(request.text, filename, inline);
+    return settle(request.text);
   },
 };
 
@@ -444,7 +571,7 @@ export const DOCKERFMT_WASM: EngineSpec<DockerfmtModule> = {
     if (typeof output !== 'string') {
       throw new FormatterError('failed', 'dockerfmt could not read this Dockerfile (probably a syntax error in a RUN command), so nothing was changed.');
     }
-    return output;
+    return keepBracketForm(request.text, output);
   },
 };
 

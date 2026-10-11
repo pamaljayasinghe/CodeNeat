@@ -1,3 +1,5 @@
+import path from 'node:path';
+import { findFileUpwards } from '../../core/executables';
 import type { ExternalSpec } from '../external';
 import { externalDescriptor, fixed } from '../toolkit';
 
@@ -144,8 +146,10 @@ export const ktlint: ExternalSpec = {
     limitations: ['ktlint is a linter with auto-correct: it fixes what it can and leaves the rest untouched.'],
   }),
   versionArgs: ['--version'],
-  async build({ style, applyStyle, writeTemp }) {
-    const args = ['--format', '--stdin', '--log-level=none'];
+  // ktlint prints the result of "--stdin" through a format string, which turns "%%" into "%" and
+  // "%n" into a line break inside the code. A private copy of the file is formatted instead.
+  async build({ request, style, applyStyle, writeTemp, inputFile }) {
+    const args = ['--format', '--log-level=none'];
     if (applyStyle) {
       const lines = ['root = true', '', '[*.{kt,kts}]'];
       const guide = style.str('kotlinStyleGuide');
@@ -165,8 +169,16 @@ export const ktlint: ExternalSpec = {
         args.push(`--editorconfig=${await writeTemp('ktlint.editorconfig', `${lines.join('\n')}\n`)}`);
       }
     }
+    // The copy lives outside the project, so the project's own .editorconfig is passed along.
+    if (!applyStyle && request.filePath) {
+      const projectConfig = await findFileUpwards(path.dirname(request.filePath), ['.editorconfig'], request.workspaceRoot);
+      if (projectConfig) {
+        args.push(`--editorconfig=${projectConfig}`);
+      }
+    }
+    args.push(await inputFile());
     // Exit code 1 means "formatted, but some lint findings could not be auto-corrected".
-    return [{ mode: 'stdin', args, okCodes: [0, 1] }];
+    return [{ mode: 'file', args, okCodes: [0, 1], cwdIsTemp: true }];
   },
 };
 

@@ -200,9 +200,11 @@ describe('external formatter arguments', () => {
     expect((await build(ktfmt, { kotlinStyleGuide: 'kotlinlang' })).args).toEqual(['--kotlinlang-style', '--do-not-remove-unused-imports', '-']);
     expect((await build(ktfmt, { removeUnusedImports: true })).args).toEqual(['-']);
     const lint = await build(ktlint, { kotlinStyleGuide: 'android', lineLength: 100, indentSize: 2, indentStyle: 'spaces' });
-    expect(lint.args.slice(0, 3)).toEqual(['--format', '--stdin', '--log-level=none']);
+    expect(lint.args.slice(0, 2)).toEqual(['--format', '--log-level=none']);
+    expect(lint.args).not.toContain('--stdin');
+    expect(lint.invocations[0].mode).toBe('file');
     expect(lint.temp['ktlint.editorconfig']).toBe('root = true\n\n[*.{kt,kts}]\nktlint_code_style = android_studio\nmax_line_length = 100\nindent_size = 2\nindent_style = space\n');
-    expect((await build(ktlint, {})).args).toHaveLength(3);
+    expect((await build(ktlint, {})).args).toEqual(['--format', '--log-level=none', '/tmp/codeneat/src/input']);
   });
 
   it('scalafmt: inline configuration pinned to the installed version', async () => {

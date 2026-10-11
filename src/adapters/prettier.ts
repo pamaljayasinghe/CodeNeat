@@ -167,6 +167,7 @@ export const PRETTIER_DESCRIPTOR: FormatterDescriptor = {
     'Quotes cannot be preserved as written.',
     'Imports are never sorted or removed.',
     'Angular templates are detected from the ".component.html" file name or the Angular language id.',
+    'HTML files that contain template tags of another language (for example Django or Jinja "{% ... %}") are formatted as plain HTML, so those tags are treated as text and can be joined onto one line.',
   ],
 };
 
@@ -227,8 +228,8 @@ export const PRETTIER_XML_DESCRIPTOR: FormatterDescriptor = {
     xmlWhitespace: {
       native: 'xmlWhitespaceSensitivity',
       support: 'full',
-      default: 'strict',
-      note: 'With the default "Meaningful" setting the formatter changes very little, because whitespace in XML can be data.',
+      default: 'preserve',
+      note: 'With the "Meaningful (do not touch)" setting the formatter changes very little, because whitespace in XML can be data.',
     },
     xmlSelfClosingSpace: { native: 'xmlSelfClosingSpace', support: 'full', default: true },
     xmlSortAttributes: { native: 'xmlSortAttributesByKey', support: 'full', default: false },
@@ -237,7 +238,7 @@ export const PRETTIER_XML_DESCRIPTOR: FormatterDescriptor = {
   lineLengthNote: widthNote,
   cancellation: 'discard-result',
   configFiles: PRETTIER_CONFIG_FILES,
-  limitations: ['Whitespace inside elements is treated as meaningful unless you change "XML: Whitespace in Text".'],
+  limitations: ['Whitespace inside text is kept as it is unless you change "XML: Whitespace in Text".'],
 };
 
 export const PRETTIER_TOML_DESCRIPTOR: FormatterDescriptor = {
@@ -327,6 +328,12 @@ export const PRETTIER_LATEX_DESCRIPTOR: FormatterDescriptor = {
     'Documents that redefine category codes or use unusual macro syntax may not be understood. Preview before applying.',
   ],
 };
+
+/** A private-use character that stands in for the "&" of an XML entity while the XML plugin runs. */
+const ENTITY_MASK = '\uE000';
+const LATEX_PASSES = 4;
+/** Stands in for a DOCTYPE with an internal subset, which the XML plugin cannot read. */
+const DOCTYPE_MASK = '<!DOCTYPE codeneat-doctype>';
 
 /** Converts resolved CodeNeat style values into Prettier options. */
 export function toPrettierOptions(style: StyleOptions, descriptorId: string): PrettierOptions {
@@ -576,6 +583,11 @@ export class PrettierAdapter implements FormatterAdapter {
     const { module: prettier } = await this.loadPrettier(env, nearDir, request.workspaceRoot);
     const options: PrettierOptions = { ...toPrettierOptions(StyleReader.of(request).explicitValues(), this.descriptor.id) };
     const plugins: unknown[] = [...(await this.loadPlugins())];
+    // The XML plugin's own default ("strict") keeps nested elements on one line and breaks inside
+    // tags instead, so CodeNeat starts from "preserve". A project configuration can still override it.
+    if (this.descriptor.id === 'prettier-xml' && options.xmlWhitespaceSensitivity === undefined) {
+      options.xmlWhitespaceSensitivity = 'preserve';
+    }
 
     const mayUseProject = request.useProjectConfig && env.trusted && !!request.filePath;
     if (mayUseProject && request.filePath) {
@@ -628,8 +640,32 @@ export class PrettierAdapter implements FormatterAdapter {
         request.timeoutMs,
       );
     });
+    // In "preserve" mode the XML plugin moves text that consists only of entities (<t>&amp;</t>) onto
+    // its own line, which adds whitespace to it. Hiding the "&" makes the plugin see ordinary text.
+    const maskEntities = this.descriptor.id === 'prettier-xml' && options.xmlWhitespaceSensitivity === 'preserve' && !sourceText.includes(ENTITY_MASK);
+    let input = maskEntities ? sourceText.replace(/&(?=[#\w.:-]+;)/g, ENTITY_MASK) : sourceText;
+    // <!DOCTYPE a [ ... ]> is swapped for a short declaration while the plugin runs and put back unchanged.
+    const doctype =
+      this.descriptor.id === 'prettier-xml' && !request.range && !input.includes(DOCTYPE_MASK) ? /<!DOCTYPE\s+[^\s[>]+[^[>]*\[[\s\S]*?\]\s*>/.exec(input) : null;
+    if (doctype) {
+      input = input.replace(doctype[0], () => DOCTYPE_MASK);
+    }
     try {
-      let formatted = await Promise.race([Promise.resolve(prettier.format(sourceText, options)), timeout]);
+      let formatted = await Promise.race([Promise.resolve(prettier.format(input, options)), timeout]);
+      // The LaTeX plugin needs up to three runs before its own output stops changing.
+      for (let pass = 1; this.descriptor.id === 'prettier-latex' && !request.range && pass < LATEX_PASSES; pass++) {
+        const again = await Promise.race([Promise.resolve(prettier.format(formatted, options)), timeout]);
+        if (again === formatted) {
+          break;
+        }
+        formatted = again;
+      }
+      if (doctype) {
+        formatted = formatted.replace(DOCTYPE_MASK, () => doctype[0]);
+      }
+      if (maskEntities) {
+        formatted = formatted.split(ENTITY_MASK).join('&');
+      }
       if (token.isCancellationRequested) {
         throw new FormatterError('cancelled', 'Formatting was cancelled.');
       }

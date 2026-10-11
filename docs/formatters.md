@@ -18,6 +18,7 @@ CodeNeat looks for a formatter in this order: the path you set on the Formatter 
   - Quotes cannot be preserved as written.
   - Imports are never sorted or removed.
   - Angular templates are detected from the ".component.html" file name or the Angular language id.
+  - HTML files that contain template tags of another language (for example Django or Jinja "{% ... %}") are formatted as plain HTML, so those tags are treated as text and can be joined onto one line.
 
 ## Prettier for Java
 
@@ -39,7 +40,7 @@ CodeNeat looks for a formatter in this order: the path you set on the Formatter 
 - **Project configuration it reads:** `.prettierrc`, `.prettierrc.json`, `.prettierrc.json5`, `.prettierrc.yaml`, `.prettierrc.yml`, `.prettierrc.toml`, `.prettierrc.js`, `.prettierrc.cjs`, `.prettierrc.mjs`, `.prettierrc.ts`, `prettier.config.js`, `prettier.config.cjs`, `prettier.config.mjs`, `prettier.config.ts`, `package.json (prettier key)`
 - **Options CodeNeat can set:** Line Endings (`endOfLine`); Preferred Line Length (`printWidth`); One Attribute per Line (`singleAttributePerLine`); Indent Using (`useTabs`); Indentation Size (`tabWidth`); Closing ">" on the Last Attribute Line (`bracketSameLine`); Quotes (`xmlQuoteAttributes`); XML: Whitespace in Text (`xmlWhitespaceSensitivity`); XML: Space Before "/>" (`xmlSelfClosingSpace`); XML: Sort Attributes by Name (`xmlSortAttributesByKey`)
 - **Limitations:**
-  - Whitespace inside elements is treated as meaningful unless you change "XML: Whitespace in Text".
+  - Whitespace inside text is kept as it is unless you change "XML: Whitespace in Text".
 
 ## Prettier for PHP
 
@@ -113,6 +114,7 @@ CodeNeat looks for a formatter in this order: the path you set on the Formatter 
 - **Options CodeNeat can set:** Line Endings (`line endings are converted by CodeNeat after formatting`); Preferred Line Length (`ColumnLimit`); Operators When Wrapping (`BreakBeforeBinaryOperators`); Indent Using (`UseTab`); Indentation Size (`IndentWidth / TabWidth`); Continuation Indentation (`ContinuationIndentWidth`); Indent Case Labels in Switch (`IndentCaseLabels`); Wrapped Arguments in Parentheses (`AlignAfterOpenBracket`); Space Before Opening Parenthesis (`SpaceBeforeParens`); Spaces Inside Parentheses (`SpacesInParentheses`); Space Before Assignment Operators (`SpaceBeforeAssignmentOperators`); Maximum Blank Lines in a Row (`MaxEmptyLinesToKeep`); Blank Line Between Functions and Classes (`SeparateDefinitionBlocks`); Opening Brace Position (`BreakBeforeBraces`); Short Functions on One Line (`AllowShortFunctionsOnASingleLine`); Short "if" on One Line (`AllowShortIfStatementsOnASingleLine`); Sort Imports (`SortIncludes`); Re-wrap Long Comments (`ReflowComments`); C / C++: Base Style (`BasedOnStyle`)
 - **Limitations:**
   - The bundled build does not read .clang-format. Install clang-format to have that file respected; .editorconfig and your CodeNeat preferences always apply.
+  - For C#, newer syntax such as switch expressions, LINQ queries and generic constraints can come out awkwardly laid out (the code still works). Install CSharpier for properly formatted C#.
   - The defaults shown are those of the LLVM base style; other base styles start from different values.
   - Preferences you have not set are taken from the selected base style.
 

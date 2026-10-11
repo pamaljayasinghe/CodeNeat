@@ -61,6 +61,8 @@ export interface ExternalSpec {
   prefixArgs?: string[];
   /** When true the tool counts as present even if its version command fails (older releases without --version). */
   versionOptional?: boolean;
+  /** When true the version command has to exit successfully; a version number in an error message is not enough. */
+  versionMustSucceed?: boolean;
   /** Last-resort lookup when the tool is not on PATH (e.g. asking xcrun on macOS). */
   locateFallback?(): Promise<string | undefined>;
   /** Custom presence probe for tools that are modules of another runtime (PowerShell, R). */
@@ -68,6 +70,10 @@ export interface ExternalSpec {
   build(context: BuildContext): Invocation[] | Promise<Invocation[]>;
   /** Decides whether a candidate project configuration file really configures this tool. */
   configMatches?(fileName: string, content: string): boolean;
+  /** Arguments for one more attempt after a run failed, when the failure is one the tool can get past. */
+  retryArgs?(result: RunResult, args: string[]): string[] | undefined;
+  /** Repairs the formatted text before it is returned (receives the original and the formatted text). */
+  postProcess?(original: string, formatted: string): string;
   /** Turns a failed run into a short readable message. */
   explainFailure?(result: RunResult): string | undefined;
 }
@@ -215,7 +221,7 @@ export class ExternalAdapter implements FormatterAdapter {
           },
         };
       }
-      if (result.code !== 0 && !parseVersion(output) && !this.spec.versionOptional) {
+      if (result.code !== 0 && (this.spec.versionMustSucceed || (!parseVersion(output) && !this.spec.versionOptional))) {
         return {
           status: {
             id,
@@ -342,21 +348,34 @@ export class ExternalAdapter implements FormatterAdapter {
         if (usesFile) {
           await fs.promises.writeFile(await context.inputFile(), current, 'utf8');
         }
+        const cwd = invocation.cwdIsTemp ? await ensureTemp() : defaultCwd;
+        const exe = located.exe;
+        const run = async (args: string[]): Promise<RunResult> => {
+          env.log(`${this.descriptor.id}: ${path.basename(exe)} ${args.join(' ')}`);
+          try {
+            return await runTool(exe, args, {
+              cwd,
+              stdin: invocation.mode === 'stdin' ? current : undefined,
+              timeoutMs: request.timeoutMs,
+              env: invocation.env,
+              token,
+            });
+          } catch (error) {
+            throw this.translateRunError(error, request.timeoutMs);
+          }
+        };
         const args = [...(this.spec.prefixArgs ?? []), ...invocation.args];
-        env.log(`${this.descriptor.id}: ${path.basename(located.exe)} ${args.join(' ')}`);
-        let result: RunResult;
-        try {
-          result = await runTool(located.exe, args, {
-            cwd: invocation.cwdIsTemp ? await ensureTemp() : defaultCwd,
-            stdin: invocation.mode === 'stdin' ? current : undefined,
-            timeoutMs: request.timeoutMs,
-            env: invocation.env,
-            token,
-          });
-        } catch (error) {
-          throw this.translateRunError(error, request.timeoutMs);
-        }
         const okCodes = invocation.okCodes ?? [0];
+        let result = await run(args);
+        if (result.code === null || !okCodes.includes(result.code)) {
+          const again = this.spec.retryArgs?.(result, args);
+          if (again) {
+            if (usesFile) {
+              await fs.promises.writeFile(await context.inputFile(), current, 'utf8');
+            }
+            result = await run(again);
+          }
+        }
         if (result.code === null || !okCodes.includes(result.code)) {
           const explained = this.spec.explainFailure?.(result);
           const summary = explained ?? firstLines(result.stderr || result.stdout) ?? '';
@@ -381,7 +400,7 @@ export class ExternalAdapter implements FormatterAdapter {
         }
         current = output;
       }
-      return current;
+      return this.spec.postProcess ? this.spec.postProcess(request.text, current) : current;
     } finally {
       if (tempDir) {
         await fs.promises.rm(tempDir, { recursive: true, force: true }).catch(() => undefined);

@@ -2,7 +2,7 @@
   "name": "codeneat",
   "displayName": "CodeNeat",
   "description": "Format code in 41 languages with one extension. A visual settings dashboard, live before/after preview, formatting profiles and per-language styles, powered by the official formatting engines. 32 languages work with nothing else to install.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "PamalJayasinghe",
   "license": "Apache-2.0",
   "icon": "assets/icon.png",
@@ -586,7 +586,8 @@
     "ci": "npm run typecheck && npm run lint && npm test && npm run package",
     "docs": "node scripts/gen-docs.mjs",
     "test:e2e:vsix": "node scripts/build.mjs --e2e && node tests/e2e/run.mjs --vsix",
-    "notices": "node scripts/gen-notices.mjs"
+    "notices": "node scripts/gen-notices.mjs",
+    "notices:engines": "node scripts/fetch-engine-licenses.mjs"
   },
   "dependencies": {
     "@prettier/plugin-php": "^0.25.0",

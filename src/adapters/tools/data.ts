@@ -252,6 +252,43 @@ export const latexindent: ExternalSpec = {
   },
 };
 
+/**
+ * dockerfmt rewrites the bracket form of COPY and ADD (`COPY ["a b", "/c"]`) as plain words, which
+ * breaks paths that contain spaces. This puts the bracket form back wherever the original used it.
+ */
+export function keepBracketForm(original: string, formatted: string): string {
+  const lines = formatted.split('\n');
+  let from = 0;
+  for (const source of original.split(/\r?\n/)) {
+    const match = /^\s*(?:ONBUILD\s+)?(?:COPY|ADD)\s+(?:--\S+\s+)*(\[.*\])\s*$/i.exec(source);
+    if (!match) {
+      continue;
+    }
+    let items: unknown;
+    try {
+      items = JSON.parse(match[1]);
+    } catch {
+      continue;
+    }
+    if (!Array.isArray(items) || items.length === 0 || items.some((item) => typeof item !== 'string')) {
+      continue;
+    }
+    const words = items.join(' ');
+    const index = lines.findIndex((line, position) => {
+      const text = line.trimEnd();
+      return position >= from && text.endsWith(` ${words}`) && /^\s*(?:ONBUILD\s+)?(?:COPY|ADD)\s+(?:--\S+\s+)*$/i.test(text.slice(0, -words.length));
+    });
+    if (index < 0) {
+      continue;
+    }
+    const text = lines[index].trimEnd();
+    const ending = lines[index].slice(text.length);
+    lines[index] = `${text.slice(0, -words.length)}[${items.map((item) => JSON.stringify(item)).join(', ')}]${ending}`;
+    from = index + 1;
+  }
+  return lines.join('\n');
+}
+
 /** dockerfmt — https://github.com/reteps/dockerfmt */
 export const dockerfmt: ExternalSpec = {
   descriptor: externalDescriptor({
@@ -287,6 +324,8 @@ export const dockerfmt: ExternalSpec = {
   // A launcher that cannot start (for example an npm shim without a binary for this platform)
   // must not count as an installed formatter, so the version command has to succeed.
   versionArgs: ['version'],
+  versionMustSucceed: true,
+  postProcess: keepBracketForm,
   versionCheck: /dockerfmt|\d+\.\d+/i,
   async build({ style, applyStyle, inputFile }) {
     const args: string[] = [];

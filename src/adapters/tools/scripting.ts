@@ -126,6 +126,22 @@ export const rubocop: ExternalSpec = {
     // Exit code 1 means offenses remain that layout auto-correction does not handle.
     return [{ mode: 'stdin', args, okCodes: [0, 1] }];
   },
+  // Two layout rules can keep undoing each other; RuboCop then stops and names them. Without those
+  // rules it finishes, so the file is laid out by all the others.
+  retryArgs: (result, args) => {
+    const loop = /Infinite loop detected.*?caused by ([^\n]*)/.exec(`${result.stderr}\n${result.stdout}`);
+    const cops = [...new Set(loop?.[1].match(/[A-Z]\w+\/\w+/g) ?? [])];
+    return cops.length > 0 && !args.includes('--except') ? [...args, '--except', cops.join(',')] : undefined;
+  },
+  // RuboCop lists every correction before the real error, which hides it.
+  explainFailure: (result) => {
+    const output = `${result.stderr}\n${result.stdout}`;
+    if (output.includes('Infinite loop detected')) {
+      return 'RuboCop gave up because two of its own layout rules kept undoing each other on this file ("Infinite loop detected"). Nothing was changed.';
+    }
+    const lines = output.split('\n').filter((line) => line.trim() && !line.includes('[Corrected]') && !line.startsWith('=='));
+    return lines.slice(0, 4).join('\n') || undefined;
+  },
 };
 
 /** StyLua — https://github.com/JohnnyMorganz/StyLua#options */

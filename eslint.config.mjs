@@ -31,7 +31,7 @@ export default tseslint.config(
   {
     files: ['scripts/**', 'tests/e2e/run.mjs', 'tests/helpers/*.cjs', 'webview/sidebar/*.js', '*.mjs'],
     languageOptions: {
-      globals: { console: 'readonly', process: 'readonly', require: 'readonly', module: 'readonly', __dirname: 'readonly', setInterval: 'readonly', setTimeout: 'readonly', document: 'readonly', acquireVsCodeApi: 'readonly', Element: 'readonly', URL: 'readonly' },
+      globals: { console: 'readonly', process: 'readonly', require: 'readonly', module: 'readonly', __dirname: 'readonly', setInterval: 'readonly', setTimeout: 'readonly', document: 'readonly', acquireVsCodeApi: 'readonly', Element: 'readonly', URL: 'readonly', fetch: 'readonly', Buffer: 'readonly' },
     },
     rules: { '@typescript-eslint/no-require-imports': 'off' },
   },
