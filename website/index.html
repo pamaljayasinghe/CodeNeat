@@ -1,0 +1,385 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CodeNeat: Code Formatter for VS Code, 41 Languages</title>
+<meta name="description" content="Free VS Code extension that formats code in 41 languages with one click. Live preview, visual settings dashboard and format on save. 32 languages need no setup.">
+<link rel="canonical" href="https://pamaljayasinghe.github.io/CodeNeat/">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="theme-color" content="#0b1120">
+<meta name="author" content="Pamal Jayasinghe">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CodeNeat">
+<meta property="og:title" content="CodeNeat: one code formatter for 41 languages in VS Code">
+<meta property="og:description" content="Format any file with one click, see every change before you keep it, and set your style from a visual dashboard. Free and open source.">
+<meta property="og:url" content="https://pamaljayasinghe.github.io/CodeNeat/">
+<meta property="og:image" content="https://pamaljayasinghe.github.io/CodeNeat/images/live-preview-branded.png">
+<meta property="og:image:alt" content="CodeNeat branded illustration: see every change with a before-and-after code preview">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CodeNeat: one code formatter for 41 languages in VS Code">
+<meta name="twitter:description" content="Format any file with one click, see every change before you keep it, and set your style from a visual dashboard. Free and open source.">
+<meta name="twitter:image" content="https://pamaljayasinghe.github.io/CodeNeat/images/live-preview-branded.png">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "CodeNeat",
+  "description": "CodeNeat is a free, open-source code formatter extension for Visual Studio Code. It formats 41 languages through their real formatting engines, with a visual settings dashboard, a live before/after preview, formatting profiles and format on save.",
+  "applicationCategory": "DeveloperApplication",
+  "applicationSubCategory": "Code formatter",
+  "operatingSystem": "Windows, macOS, Linux",
+  "url": "https://pamaljayasinghe.github.io/CodeNeat/",
+  "downloadUrl": "https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat",
+  "installUrl": "https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat",
+  "image": "https://pamaljayasinghe.github.io/CodeNeat/images/icon.png",
+  "screenshot": "https://pamaljayasinghe.github.io/CodeNeat/images/2-live-preview.jpg",
+  "license": "https://www.apache.org/licenses/LICENSE-2.0",
+  "isAccessibleForFree": true,
+  "offers": { "@type": "Offer", "price": "0", "priceCurrency": "USD" },
+  "author": { "@type": "Person", "name": "Pamal Jayasinghe", "url": "https://github.com/pamaljayasinghe" },
+  "codeRepository": "https://github.com/pamaljayasinghe/CodeNeat",
+  "featureList": [
+    "Formats 41 programming languages and file formats in VS Code",
+    "32 languages work with nothing else to install",
+    "One-click format with every change highlighted before you keep it",
+    "Visual settings dashboard instead of configuration files",
+    "Live before and after preview",
+    "Format on save, on paste and on type",
+    "Formatting profiles and per-language styles",
+    "Respects .editorconfig, .prettierrc and .clang-format",
+    "No account, no telemetry, no network requests"
+  ]
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    { "@type": "Question", "name": "How do I format code in VS Code?", "acceptedAnswer": { "@type": "Answer", "text": "Install a formatter extension such as CodeNeat, open your file and run Format Document (Shift+Alt+F on Windows and Linux, Shift+Option+F on macOS). With CodeNeat you can also click the CodeNeat button at the top right of the editor, which shows every change highlighted and lets you keep or undo it." } },
+    { "@type": "Question", "name": "Is there one VS Code formatter for all languages?", "acceptedAnswer": { "@type": "Answer", "text": "CodeNeat formats 41 languages from a single extension. 32 of them, including JavaScript, TypeScript, Python, Java, C, C++, C#, Go, PHP, SQL, HTML, CSS, JSON, YAML, XML and Markdown, work immediately because their formatting engines are built in. The other 9 use the official formatter of their toolchain, which CodeNeat helps you install." } },
+    { "@type": "Question", "name": "Is CodeNeat free?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. CodeNeat is free and open source under the Apache License 2.0. There is no account, no paid tier and no telemetry." } },
+    { "@type": "Question", "name": "Is CodeNeat a Prettier alternative?", "acceptedAnswer": { "@type": "Answer", "text": "CodeNeat uses Prettier itself for web languages, so the output matches what Prettier users expect. It adds the languages Prettier does not cover, such as Python, Go, C, C++, C#, Dart, SQL, Lua, Bash and Dockerfile, plus a visual settings dashboard and a live preview. Existing .prettierrc files keep working." } },
+    { "@type": "Question", "name": "How do I turn on format on save in VS Code?", "acceptedAnswer": { "@type": "Answer", "text": "Open the CodeNeat dashboard, go to Auto Formatting, make CodeNeat the default formatter and switch on Format on Save. This sets editor.formatOnSave and editor.defaultFormatter for you." } },
+    { "@type": "Question", "name": "Why is format on save not working in VS Code?", "acceptedAnswer": { "@type": "Answer", "text": "The usual cause is that no default formatter is chosen for the language, or two formatter extensions compete. Choose one default formatter (in CodeNeat: Auto Formatting, then Use CodeNeat as Default Formatter) and make sure Format on Save is switched on." } },
+    { "@type": "Question", "name": "Does CodeNeat send my code anywhere?", "acceptedAnswer": { "@type": "Answer", "text": "No. All formatting happens on your computer. CodeNeat has no account, no telemetry and makes no network requests." } },
+    { "@type": "Question", "name": "Does CodeNeat respect .prettierrc and .editorconfig?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Project files such as .editorconfig, .prettierrc, .clang-format and rustfmt.toml take priority by default, and CodeNeat never modifies them." } },
+    { "@type": "Question", "name": "How do I format JSON, XML or SQL in VS Code?", "acceptedAnswer": { "@type": "Answer", "text": "With CodeNeat installed, open the JSON, XML or SQL file and click the CodeNeat button or run Format Document. All three are built in, so there is nothing else to install. For SQL you can choose your database dialect in the dashboard." } }
+  ]
+}
+</script>
+
+<style>
+:root {
+  --bg: #0b1120; --surface: #111a2e; --surface-2: #16213a; --border: #233252;
+  --text: #e8eef9; --muted: #a3b3cc; --accent: #5cc8ff; --accent-2: #2f6bff;
+  --good: #4ade80; --radius: 14px; --max: 1120px;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body { margin: 0; background: var(--bg); color: var(--text); font: 17px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; -webkit-font-smoothing: antialiased; }
+img { max-width: 100%; height: auto; display: block; }
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+code, kbd { font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: 0.9em; }
+kbd { background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; padding: 1px 6px; }
+.wrap { max-width: var(--max); margin: 0 auto; padding: 0 20px; }
+.skip { position: absolute; left: -999px; }
+.skip:focus { left: 12px; top: 12px; background: var(--surface); padding: 8px 12px; border-radius: 8px; z-index: 10; }
+
+header.site { position: sticky; top: 0; z-index: 5; background: rgba(11, 17, 32, 0.88); backdrop-filter: blur(10px); border-bottom: 1px solid var(--border); }
+header.site .wrap { display: flex; align-items: center; gap: 20px; height: 64px; }
+.brand { display: flex; align-items: center; gap: 10px; color: var(--text); font-weight: 700; font-size: 1.1rem; }
+.brand img { width: 34px; height: 34px; }
+nav.main { margin-left: auto; display: flex; align-items: center; gap: 22px; }
+nav.main a { color: var(--muted); font-size: 0.95rem; }
+nav.main a:hover { color: var(--text); text-decoration: none; }
+.btn { display: inline-block; padding: 12px 20px; border-radius: 10px; font-weight: 600; border: 1px solid var(--border); color: var(--text); background: var(--surface); }
+.btn:hover { text-decoration: none; border-color: var(--accent); }
+.btn.primary { background: linear-gradient(135deg, var(--accent-2), #19b8e6); border-color: transparent; color: #fff; }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.small { padding: 8px 14px; font-size: 0.92rem; }
+
+.hero { padding: 72px 0 40px; text-align: center; }
+.eyebrow { display: inline-block; color: var(--accent); font-weight: 600; font-size: 0.9rem; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 14px; }
+h1 { font-size: clamp(2.1rem, 5vw, 3.5rem); line-height: 1.12; margin: 0 auto 18px; max-width: 880px; letter-spacing: -0.02em; }
+h1 span { background: linear-gradient(90deg, var(--accent), #7aa2ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.lead { font-size: 1.2rem; color: var(--muted); max-width: 720px; margin: 0 auto 28px; }
+.cta { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; margin-bottom: 18px; }
+.install { color: var(--muted); font-size: 0.95rem; }
+.install code { background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 4px 10px; color: var(--text); }
+.facts { display: flex; gap: 10px 26px; justify-content: center; flex-wrap: wrap; list-style: none; padding: 0; margin: 26px 0 0; color: var(--muted); font-size: 0.97rem; }
+.facts li::before { content: "✓ "; color: var(--good); font-weight: 700; }
+.shot { margin: 44px auto 0; border: 1px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5); }
+
+section { padding: 72px 0; }
+section.alt { background: #0e1629; border-top: 1px solid var(--border); border-bottom: 1px solid var(--border); }
+h2 { font-size: clamp(1.6rem, 3.4vw, 2.3rem); line-height: 1.2; margin: 0 0 14px; letter-spacing: -0.01em; }
+.sub { color: var(--muted); max-width: 720px; margin: 0 0 36px; }
+h3 { font-size: 1.15rem; margin: 0 0 8px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 24px; }
+.card p { margin: 0; color: var(--muted); }
+.split { display: grid; grid-template-columns: 1fr 1.25fr; gap: 40px; align-items: center; }
+.split.flip > :first-child { order: 2; }
+.split img { border: 1px solid var(--border); border-radius: var(--radius); }
+.split ul { color: var(--muted); padding-left: 20px; }
+.split li { margin-bottom: 8px; }
+
+.langs { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; list-style: none; padding: 0; margin: 0 0 14px; }
+.langs li { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; }
+.langs strong { font-weight: 600; }
+.langs span { color: var(--muted); font-size: 0.88rem; }
+.tag { display: inline-block; font-size: 0.78rem; font-weight: 600; border-radius: 999px; padding: 2px 10px; margin-bottom: 14px; }
+.tag.ready { background: rgba(74, 222, 128, 0.12); color: var(--good); border: 1px solid rgba(74, 222, 128, 0.35); }
+.tag.setup { background: rgba(92, 200, 255, 0.1); color: var(--accent); border: 1px solid rgba(92, 200, 255, 0.35); }
+h3.group { margin-top: 34px; }
+
+ol.steps { counter-reset: step; list-style: none; padding: 0; margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 18px; }
+ol.steps li { counter-increment: step; background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 22px; color: var(--muted); }
+ol.steps li::before { content: counter(step); display: inline-grid; place-items: center; width: 32px; height: 32px; border-radius: 50%; background: linear-gradient(135deg, var(--accent-2), #19b8e6); color: #fff; font-weight: 700; margin-bottom: 12px; }
+ol.steps strong { display: block; color: var(--text); margin-bottom: 4px; }
+
+details { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 0 20px; margin-bottom: 10px; }
+summary { cursor: pointer; font-weight: 600; padding: 16px 0; list-style: none; display: flex; justify-content: space-between; gap: 16px; }
+summary::-webkit-details-marker { display: none; }
+summary::after { content: "+"; color: var(--accent); font-size: 1.3rem; line-height: 1; }
+details[open] summary::after { content: "–"; }
+details p { margin: 0 0 18px; color: var(--muted); }
+
+.final { text-align: center; }
+.final .sub { margin: 0 auto 28px; }
+footer { border-top: 1px solid var(--border); padding: 34px 0 44px; color: var(--muted); font-size: 0.92rem; }
+footer .wrap { display: flex; flex-wrap: wrap; gap: 14px 28px; justify-content: space-between; }
+footer nav { display: flex; flex-wrap: wrap; gap: 8px 20px; }
+footer p { margin: 0; max-width: 640px; }
+
+@media (max-width: 820px) {
+  nav.main a:not(.btn) { display: none; }
+  .split { grid-template-columns: 1fr; gap: 24px; }
+  .split.flip > :first-child { order: 0; }
+  .hero { padding-top: 48px; }
+  section { padding: 54px 0; }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site">
+  <div class="wrap">
+    <a class="brand" href="#top" aria-label="CodeNeat home"><img src="images/icon.png" alt="" width="34" height="34">CodeNeat</a>
+    <nav class="main" aria-label="Main">
+      <a href="#features">Features</a>
+      <a href="#languages">Languages</a>
+      <a href="#how">How it works</a>
+      <a href="#faq">FAQ</a>
+      <a class="btn primary small" href="https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat">Install free</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main">
+<div class="hero wrap" id="top">
+  <span class="eyebrow">Code formatter extension for VS Code</span>
+  <h1>One code formatter for <span>41 languages</span> in VS Code</h1>
+  <p class="lead">CodeNeat formats any file with one click, shows you every change before you keep it, and lets you set your style from a visual dashboard. No config files. No AI tokens spent on indentation.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat">Install from the VS Code Marketplace</a>
+    <a class="btn" href="https://github.com/pamaljayasinghe/CodeNeat">View on GitHub</a>
+  </div>
+  <p class="install">Or press <kbd>Ctrl</kbd>+<kbd>P</kbd> in VS Code and run <code>ext install PamalJayasinghe.codeneat</code></p>
+  <ul class="facts">
+    <li>Free and open source</li>
+    <li>32 languages ready on install</li>
+    <li>No account, no telemetry</li>
+    <li>Windows, macOS and Linux</li>
+  </ul>
+  <img class="shot" src="images/live-preview-branded.webp" width="1536" height="1024" fetchpriority="high" alt="CodeNeat feature illustration: before-and-after code formatting with Keep and Undo actions, 41 languages, live preview, and private local formatting">
+</div>
+
+<section class="alt" id="why">
+  <div class="wrap">
+    <h2>Stop paying AI to fix indentation</h2>
+    <p class="sub">Asking an AI assistant to "clean up this file" spends tokens on a job that needs no intelligence. And when a project mixes several languages, VS Code usually needs a different formatter extension for each one, each with its own settings. CodeNeat is one extension that formats them all, on your own computer, in milliseconds.</p>
+    <div class="grid">
+      <div class="card"><h3>One extension instead of many</h3><p>JavaScript, Python, Go, SQL, Dockerfile and 36 more are handled by the same extension, the same shortcut and the same settings screen.</p></div>
+      <div class="card"><h3>Real formatting engines</h3><p>CodeNeat runs Prettier, Ruff, gofmt, clang-format, StyLua, shfmt and other established formatters, so the result is the style your team already expects.</p></div>
+      <div class="card"><h3>Private by design</h3><p>Formatting happens on your machine. There is no account, no telemetry and no network request. Your code never leaves your computer.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <h2>Everything you need to format code in VS Code</h2>
+    <p class="sub">Format a document, a selection or a whole folder. Decide how your code should look once, and apply it everywhere.</p>
+    <div class="grid">
+      <div class="card"><h3>See changes before you keep them</h3><p>Click the CodeNeat button and the formatted code appears with every changed line highlighted. Keep the changes or undo them with one key.</p></div>
+      <div class="card"><h3>Visual settings dashboard</h3><p>Set line length, indentation, quotes, semicolons, braces and more from a searchable dashboard instead of editing JSON by hand.</p></div>
+      <div class="card"><h3>Live before and after preview</h3><p>The preview runs the real formatter on your current file and updates as you change a setting or type.</p></div>
+      <div class="card"><h3>Format on save, paste and type</h3><p>Make CodeNeat your default formatter and switch on Format on Save from the dashboard. No settings file to edit.</p></div>
+      <div class="card"><h3>Profiles and per-language styles</h3><p>Use the built-in Standard, Compact, Readable and Team profiles or create your own. Any preference can apply to every language or just one.</p></div>
+      <div class="card"><h3>Respects your project</h3><p><code>.editorconfig</code>, <code>.prettierrc</code>, <code>.clang-format</code> and <code>rustfmt.toml</code> take priority by default and are never modified.</p></div>
+      <div class="card"><h3>Format a whole workspace</h3><p>Preview the list of files, confirm, and watch the progress. <code>node_modules</code>, build output and everything in <code>.gitignore</code> are skipped.</p></div>
+      <div class="card"><h3>Guided formatter setup</h3><p>For languages that use their own toolchain formatter, CodeNeat shows the exact install command and runs it only after you confirm.</p></div>
+      <div class="card"><h3>Safe by default</h3><p>Formatting changes layout, not behaviour. If a file cannot be read, it is left exactly as it is and CodeNeat tells you why.</p></div>
+    </div>
+  </div>
+</section>
+
+<section class="alt">
+  <div class="wrap split">
+    <div>
+      <h2>Your style, without config files</h2>
+      <p class="sub">The dashboard replaces hand-edited configuration. Options are shown only where the formatter really supports them, so nothing is a guess.</p>
+      <ul>
+        <li>Line length from 40 to 300 characters</li>
+        <li>Spaces or tabs, with any indent size</li>
+        <li>Quotes, semicolons, trailing commas and brace position</li>
+        <li>Language options such as SQL dialect, XML whitespace and C++ base style</li>
+        <li>Import and export your settings to share with a team</li>
+      </ul>
+    </div>
+    <img src="images/dashboard-branded.webp" width="1536" height="1024" loading="lazy" decoding="async" alt="CodeNeat visual settings illustration: indentation, line length, format on save, and Standard, Compact and Readable profiles beside a code preview">
+  </div>
+</section>
+
+<section>
+  <div class="wrap split flip">
+    <div>
+      <h2>A side panel for everyday formatting</h2>
+      <p class="sub">The CodeNeat panel shows the language and formatter of the current file and puts the common actions one click away.</p>
+      <ul>
+        <li>Format Document and Format Workspace</li>
+        <li>Preview Formatting as a live diff</li>
+        <li>Check whether a file is already formatted</li>
+        <li>Select a formatter or a profile for the language</li>
+      </ul>
+    </div>
+    <img src="images/quick-format-branded.webp" width="1536" height="1024" loading="lazy" decoding="async" alt="CodeNeat quick formatting illustration: Format Document, Preview Formatting and Check Formatting actions beside colorful formatted code">
+  </div>
+</section>
+
+<section class="alt" id="languages">
+  <div class="wrap">
+    <h2>41 supported languages</h2>
+    <p class="sub">Each language is formatted by a real, language-aware engine. 32 work the moment you install CodeNeat. The other 9 use the official formatter of their own toolchain.</p>
+
+    <h3 class="group">Ready on install</h3>
+    <span class="tag ready">Nothing else to install</span>
+    <ul class="langs">
+      <li><strong>JavaScript</strong><span>Prettier</span></li>
+      <li><strong>TypeScript</strong><span>Prettier</span></li>
+      <li><strong>JSX (React)</strong><span>Prettier</span></li>
+      <li><strong>TSX (React)</strong><span>Prettier</span></li>
+      <li><strong>HTML</strong><span>Prettier</span></li>
+      <li><strong>CSS</strong><span>Prettier</span></li>
+      <li><strong>SCSS</strong><span>Prettier</span></li>
+      <li><strong>Less</strong><span>Prettier</span></li>
+      <li><strong>JSON</strong><span>Prettier</span></li>
+      <li><strong>JSON with Comments</strong><span>Prettier</span></li>
+      <li><strong>YAML</strong><span>Prettier</span></li>
+      <li><strong>Markdown</strong><span>Prettier</span></li>
+      <li><strong>MDX</strong><span>Prettier</span></li>
+      <li><strong>Vue</strong><span>Prettier</span></li>
+      <li><strong>Angular templates</strong><span>Prettier</span></li>
+      <li><strong>GraphQL</strong><span>Prettier</span></li>
+      <li><strong>XML</strong><span>Prettier for XML</span></li>
+      <li><strong>Python</strong><span>Ruff</span></li>
+      <li><strong>Java</strong><span>Prettier for Java</span></li>
+      <li><strong>C</strong><span>clang-format</span></li>
+      <li><strong>C++</strong><span>clang-format</span></li>
+      <li><strong>C#</strong><span>clang-format, or CSharpier if installed</span></li>
+      <li><strong>Go</strong><span>gofmt</span></li>
+      <li><strong>PHP</strong><span>Prettier for PHP</span></li>
+      <li><strong>Dart</strong><span>dart format</span></li>
+      <li><strong>SQL</strong><span>SQL Formatter, 14 dialects</span></li>
+      <li><strong>Bash and shell scripts</strong><span>shfmt</span></li>
+      <li><strong>Lua</strong><span>StyLua</span></li>
+      <li><strong>TOML</strong><span>Taplo</span></li>
+      <li><strong>Dockerfile</strong><span>dockerfmt</span></li>
+      <li><strong>Protocol Buffers</strong><span>clang-format</span></li>
+      <li><strong>LaTeX</strong><span>Prettier for LaTeX</span></li>
+    </ul>
+
+    <h3 class="group">With the language's own formatter</h3>
+    <span class="tag setup">CodeNeat helps you install it</span>
+    <ul class="langs">
+      <li><strong>Rust</strong><span>rustfmt</span></li>
+      <li><strong>Kotlin</strong><span>ktfmt or ktlint</span></li>
+      <li><strong>Swift</strong><span>swift-format</span></li>
+      <li><strong>Ruby</strong><span>RuboCop</span></li>
+      <li><strong>Scala</strong><span>scalafmt</span></li>
+      <li><strong>F#</strong><span>Fantomas</span></li>
+      <li><strong>PowerShell</strong><span>PSScriptAnalyzer</span></li>
+      <li><strong>R</strong><span>Air</span></li>
+      <li><strong>Terraform and HCL</strong><span>terraform fmt</span></li>
+    </ul>
+    <p class="sub">Already have Ruff, clang-format, gofmt or another formatter installed? CodeNeat uses it in place of the built-in one, so that tool's own project configuration is honoured. See the full <a href="https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/languages.md">language and formatter table</a>.</p>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <h2>How to format code in VS Code with CodeNeat</h2>
+    <p class="sub">From install to a formatted file in under a minute.</p>
+    <ol class="steps">
+      <li><strong>Install CodeNeat</strong>Open the Extensions view in VS Code, search for "CodeNeat" and click Install.</li>
+      <li><strong>Open any supported file</strong>CodeNeat detects the language and picks the right formatter for it.</li>
+      <li><strong>Click the CodeNeat button</strong>It is at the top right of the editor. You can also press <kbd>Ctrl</kbd>+<kbd>Alt</kbd>+<kbd>Shift</kbd>+<kbd>F</kbd> (<kbd>⌘</kbd>+<kbd>⌥</kbd>+<kbd>⇧</kbd>+<kbd>F</kbd> on macOS).</li>
+      <li><strong>Keep or undo</strong>Every changed line is highlighted. Press Enter to keep the changes or Escape to undo them.</li>
+      <li><strong>Turn on format on save</strong>Open Auto Formatting in the dashboard, make CodeNeat the default formatter and switch on Format on Save.</li>
+    </ol>
+  </div>
+</section>
+
+<section class="alt" id="faq">
+  <div class="wrap">
+    <h2>Frequently asked questions</h2>
+    <p class="sub">Short answers to what people ask about formatting code in VS Code.</p>
+
+    <details open><summary>How do I format code in VS Code?</summary><p>Install a formatter extension such as CodeNeat, open your file and run <strong>Format Document</strong> (<kbd>Shift</kbd>+<kbd>Alt</kbd>+<kbd>F</kbd> on Windows and Linux, <kbd>Shift</kbd>+<kbd>Option</kbd>+<kbd>F</kbd> on macOS). With CodeNeat you can also click the CodeNeat button at the top right of the editor, which shows every change highlighted and lets you keep or undo it.</p></details>
+    <details><summary>Is there one VS Code formatter for all languages?</summary><p>CodeNeat formats 41 languages from a single extension. 32 of them, including JavaScript, TypeScript, Python, Java, C, C++, C#, Go, PHP, SQL, HTML, CSS, JSON, YAML, XML and Markdown, work immediately because their formatting engines are built in. The other 9 use the official formatter of their toolchain, which CodeNeat helps you install.</p></details>
+    <details><summary>Is CodeNeat free?</summary><p>Yes. CodeNeat is free and open source under the Apache License 2.0. There is no account, no paid tier and no telemetry.</p></details>
+    <details><summary>Is CodeNeat a Prettier alternative?</summary><p>CodeNeat uses Prettier itself for web languages, so the output matches what Prettier users expect. It adds the languages Prettier does not cover, such as Python, Go, C, C++, C#, Dart, SQL, Lua, Bash and Dockerfile, plus a visual settings dashboard and a live preview. Existing <code>.prettierrc</code> files keep working.</p></details>
+    <details><summary>How do I turn on format on save in VS Code?</summary><p>Open the CodeNeat dashboard, go to <strong>Auto Formatting</strong>, make CodeNeat the default formatter and switch on <strong>Format on Save</strong>. This sets <code>editor.formatOnSave</code> and <code>editor.defaultFormatter</code> for you.</p></details>
+    <details><summary>Why is format on save not working in VS Code?</summary><p>The usual cause is that no default formatter is chosen for the language, or two formatter extensions compete. Choose one default formatter (in CodeNeat: <strong>Auto Formatting</strong>, then <strong>Use CodeNeat as Default Formatter</strong>) and make sure Format on Save is switched on.</p></details>
+    <details><summary>Does CodeNeat send my code anywhere?</summary><p>No. All formatting happens on your computer. CodeNeat has no account, no telemetry and makes no network requests.</p></details>
+    <details><summary>Does CodeNeat respect .prettierrc and .editorconfig?</summary><p>Yes. Project files such as <code>.editorconfig</code>, <code>.prettierrc</code>, <code>.clang-format</code> and <code>rustfmt.toml</code> take priority by default, and CodeNeat never modifies them.</p></details>
+    <details><summary>How do I format JSON, XML or SQL in VS Code?</summary><p>With CodeNeat installed, open the JSON, XML or SQL file and click the CodeNeat button or run Format Document. All three are built in, so there is nothing else to install. For SQL you can choose your database dialect in the dashboard.</p></details>
+  </div>
+</section>
+
+<section class="final">
+  <div class="wrap">
+    <h2>Format every language your way</h2>
+    <p class="sub">CodeNeat is free and open source. Try it, and if you find a file that formats badly, open an issue so it can be fixed.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat">Install CodeNeat</a>
+      <a class="btn" href="https://github.com/pamaljayasinghe/CodeNeat/issues">Report an issue</a>
+      <a class="btn" href="https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc">Read the story on Medium</a>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p>CodeNeat is made by Pamal Jayasinghe and released under the Apache License 2.0. It is an independent project, not affiliated with Microsoft. Visual Studio Code is a trademark of Microsoft Corporation.</p>
+    <nav aria-label="Footer">
+      <a href="https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat">VS Code Marketplace</a>
+      <a href="https://github.com/pamaljayasinghe/CodeNeat">GitHub</a>
+      <a href="https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/usage.md">User guide</a>
+      <a href="https://github.com/pamaljayasinghe/CodeNeat/blob/main/CHANGELOG.md">Changelog</a>
+      <a href="https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/privacy.md">Privacy</a>
+      <a href="https://github.com/pamaljayasinghe/CodeNeat/blob/main/THIRD_PARTY_NOTICES.md">Open-source licences</a>
+    </nav>
+  </div>
+</footer>
+</body>
+</html>

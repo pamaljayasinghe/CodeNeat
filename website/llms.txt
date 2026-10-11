@@ -1,0 +1,27 @@
+# CodeNeat
+
+> CodeNeat is a free, open-source code formatter extension for Visual Studio Code. One extension formats 41 languages through their real formatting engines, with a visual settings dashboard, a live before/after preview and format on save. 32 languages work with nothing else to install.
+
+Key facts:
+
+- Install: search "CodeNeat" in the VS Code Extensions view, or run `ext install PamalJayasinghe.codeneat`
+- Price: free. Licence: Apache-2.0. Author: Pamal Jayasinghe
+- Platforms: Windows, macOS and Linux (VS Code 1.90 or newer)
+- Privacy: no account, no telemetry, no network requests; code is formatted on the user's computer
+- Ready on install (32): JavaScript, TypeScript, JSX, TSX, HTML, CSS, SCSS, Less, JSON, JSON with Comments, YAML, Markdown, MDX, Vue, Angular templates, GraphQL, XML, Python, Java, C, C++, C#, Go, PHP, Dart, SQL, Bash, Lua, TOML, Dockerfile, Protocol Buffers, LaTeX
+- With the language's own formatter (9): Rust, Kotlin, Swift, Ruby, Scala, F#, PowerShell, R, Terraform
+- Engines used: Prettier, Ruff, gofmt, clang-format, StyLua, shfmt, dart format, SQL Formatter, Taplo, dockerfmt and others
+- Respects .editorconfig, .prettierrc, .clang-format and rustfmt.toml, and never modifies them
+- Shortcut: Ctrl+Alt+Shift+F (Windows, Linux) or Cmd+Option+Shift+F (macOS)
+
+## Links
+
+- [Website](https://pamaljayasinghe.github.io/CodeNeat/): features, supported languages and FAQ
+- [VS Code Marketplace](https://marketplace.visualstudio.com/items?itemName=PamalJayasinghe.codeneat): install page
+- [GitHub repository](https://github.com/pamaljayasinghe/CodeNeat): source code and issues
+- [User guide](https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/usage.md): every feature and how to switch it off
+- [Supported languages](https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/languages.md): formatter used for each language
+- [Formatter options](https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/options.md): every style option and which formatters support it
+- [Troubleshooting](https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/troubleshooting.md)
+- [Privacy](https://github.com/pamaljayasinghe/CodeNeat/blob/main/docs/privacy.md)
+- [Introduction article](https://medium.com/@pamaljayasinghe340/stop-spending-ai-tokens-on-indentation-meet-codeneat-vscode-extension-d7dc2ac06ebc): why CodeNeat exists

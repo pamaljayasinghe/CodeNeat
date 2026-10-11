@@ -24,3 +24,4 @@ node_modules/@reteps/dockerfmt-*/**
 
 # Articles and promotional material are not part of the extension.
 marketing/**
+website/**
