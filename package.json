@@ -600,7 +600,7 @@
     "@wasm-fmt/ruff_fmt": "^0.15.20",
     "@wasm-fmt/shfmt": "^0.2.7",
     "editorconfig": "^3.0.2",
-    "prettier": "^3.6.0",
+    "prettier": "^3.9.10",
     "prettier-plugin-java": "^2.7.0",
     "prettier-plugin-latex": "^2.0.1",
     "prettier-plugin-toml": "^2.0.6",
